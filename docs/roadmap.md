@@ -4,28 +4,31 @@ Dokumen ini menjadi sumber utama urutan kerja dan status proyek. Targetnya adala
 
 ## Posisi proyek saat ini
 
-**Tahap: fondasi starter tersedia; setup dan deployment API dasar selesai; aplikasi masih di tahap awal.**
+**Tahap: fondasi dan alur dasar simpan/muat telah ditulis; verifikasi langsung dari GitHub Pages masih menunggu.**
 
-### Sudah tersedia dan diverifikasi
+### Sudah tersedia
 
 - Struktur awal repository, README, dan roadmap.
-- index.html dengan wizard dasar dan pilihan skala Startup/UKM, Menengah, dan Korporat.
-- gas/setup.gs membuat spreadsheet dan folder Drive otomatis, menyiapkan tab Profiles, lalu menyimpan ID ke Script Properties.
-- setupProject() berhasil dijalankan pada 20 Oktober 2026. Execution log mengonfirmasi spreadsheet dan folder Drive berhasil dibuat serta konfigurasi tersimpan.
-- Pemanggilan ulang setupProject() menggunakan resource yang sama dan tidak membuat duplikat.
-- gas/Code.gs menyediakan endpoint dasar health, baca profil, dan simpan profil.
+- Wizard responsif di index.html dengan pilihan skala Startup/UKM, Menengah, dan Korporat.
+- frontend/js/app.js mempertahankan nilai antar langkah dan menyimpan draft lokal otomatis.
+- Tombol simpan cloud membuat ID profil, mengirim data ke GAS, lalu mencoba memverifikasi penyimpanan dengan membaca profil kembali.
+- Tombol muat cloud membaca profil menggunakan ID.
+- URL GAS yang diberikan pengguna telah dikonfigurasi di frontend/js/app.js.
+- gas/setup.gs membuat spreadsheet dan folder Drive, menyiapkan tab Profiles, lalu menyimpan ID ke Script Properties.
+- setupProject() berhasil dijalankan pada 20 Oktober 2026; Execution log mengonfirmasi resource dibuat dan konfigurasi tersimpan.
 - GAS Web App berhasil dideploy; health check mengembalikan { ok: true, service: "company-profile-api" }.
+- gas/Code.gs menyediakan endpoint health, baca profil, dan simpan profil.
 
-Tautan dan ID resource Google tidak dicantumkan di repository publik. Keduanya tersedia pada akun Google pemilik dan Script Properties project GAS. URL deployment tidak dicatat di sini; simpan di konfigurasi lokal frontend saat integrasi dilakukan.
+### Masih perlu dilakukan
 
-### Belum tersedia
-
-- Wizard belum terhubung ke API GAS; draft saat ini hanya tersimpan di browser.
+- Uji alur simpan dan muat dari domain GitHub Pages dengan data percobaan.
+- Pastikan GitHub Pages aktif dan versi terbaru sudah terbit.
+- Lindungi API dari akses tulis/ubah yang tidak berwenang sebelum menyimpan data klien sungguhan.
 - Belum ada upload gambar dari UI ke Drive.
 - Belum ada live preview, template profil, tema warna, daftar isi otomatis, susunan halaman, atau ekspor PDF.
 - Belum ada penggabungan legalitas maupun integrasi Gemini.
 
-**Langkah aktif berikutnya:** hubungkan simpan/muat profil melalui GAS dan pertahankan state form saat berpindah langkah. Sebelum membuka penyimpanan POST ke pengguna, tetapkan perlindungan API. Setelah alur data stabil, bangun preview dan template sebagai satu alur dokumen.
+**Langkah aktif berikutnya:** buka UI yang terbit di GitHub Pages, simpan profil percobaan, catat ID yang ditampilkan, lalu muat profil itu kembali. Setelah alur tersebut terverifikasi dan akses API ditinjau, lanjutkan upload aset dan penyusunan template/preview.
 
 ## Spesifikasi dokumen
 
@@ -46,9 +49,10 @@ Galeri dan dokumentasi terutama menjadi bagian portofolio di isi dokumen. Back c
 
 - [x] Jalankan setupProject(); spreadsheet dan folder Drive berhasil dibuat dan ID tersimpan di Script Properties.
 - [x] Deploy GAS Web App dan verifikasi endpoint health.
-- [ ] Tetapkan skema profil, aset, bagian dokumen, dan skala bisnis.
-- [ ] Pertahankan nilai form saat berpindah langkah atau mengganti skala.
-- [ ] Hubungkan simpan/muat profil dengan GAS dan tampilkan status/error.
+- [x] Implementasikan wizard yang mempertahankan isian saat berpindah langkah dan mengganti skala.
+- [x] Implementasikan draft lokal serta kode simpan/muat profil dari GAS.
+- [ ] Verifikasi alur simpan/muat langsung dari GitHub Pages.
+- [ ] Tetapkan skema profil/aset dan validasi konsisten di frontend/backend.
 - [ ] Validasi tipe dan ukuran gambar maksimum 1 MB sebelum Base64; validasi ulang di backend.
 - [ ] Siapkan upload ke Drive dan simpan referensi file, bukan Base64 permanen di Sheets.
 - [ ] Tetapkan akses API yang layak sebelum digunakan untuk data klien.
