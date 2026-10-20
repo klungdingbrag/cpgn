@@ -2,6 +2,7 @@
  * Jalankan setupProject() sekali dari editor Apps Script.
  * Spreadsheet dan folder Drive dibuat otomatis lalu ID-nya disimpan di Script Properties.
  * Jika dijalankan ulang, resource yang sudah tersimpan akan digunakan kembali.
+ * URL hasil setup muncul pada Execution log.
  */
 function setupProject() {
   const properties = PropertiesService.getScriptProperties();
@@ -11,7 +12,6 @@ function setupProject() {
   let folder;
 
   if (spreadsheetId) {
-    // Memastikan resource konfigurasi lama masih dapat diakses.
     spreadsheet = SpreadsheetApp.openById(spreadsheetId);
   } else {
     spreadsheet = SpreadsheetApp.create('Company Profile Generator - Database');
@@ -41,14 +41,8 @@ function setupProject() {
     sheet.setFrozenRows(1);
   }
 
-  const message = [
-    'Setup selesai. Resource tersimpan di Script Properties.',
-    '',
-    'Spreadsheet: ' + spreadsheet.getUrl(),
-    'Folder aset: ' + folder.getUrl(),
-    '',
-    'Jalankan setupProject() lagi tidak akan membuat duplikat.'
-  ].join('\\n');
-  SpreadsheetApp.getUi().alert('Company Profile Generator siap', message, SpreadsheetApp.getUi().ButtonSet.OK);
-  Logger.log(message);
+  Logger.log('Setup selesai. Resource tersimpan di Script Properties.');
+  Logger.log('Spreadsheet: ' + spreadsheet.getUrl());
+  Logger.log('Folder aset: ' + folder.getUrl());
+  Logger.log('Jalankan setupProject() lagi tidak akan membuat duplikat.');
 }
