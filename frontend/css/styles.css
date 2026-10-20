@@ -1,2 +1,5 @@
-/* Frontend styles dipindahkan dari index.html pada tahap pemisahan aset. */
-
+body { background: #f5f7fb; }
+.step[aria-current="step"] { background: #0f766e; color: #fff; }
+.field { width: 100%; border: 1px solid #dbe2ea; border-radius: .75rem; padding: .7rem .85rem; background: #fff; }
+.field:focus { outline: 2px solid #99f6e4; border-color: #0f766e; }
+textarea.field { resize: vertical; }
