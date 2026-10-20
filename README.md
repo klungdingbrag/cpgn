@@ -4,7 +4,7 @@ Mesin produksi company profile untuk layanan desain dan penerbitan bisnis. Front
 
 ## Status proyek
 
-**Fondasi starter tersedia; aplikasi masih pada tahap awal.** Wizard skala bisnis dan boilerplate GAS sudah ada. Form belum terhubung ke penyimpanan cloud. Preview halaman, template, tema, daftar isi otomatis, ekspor PDF, upload, dan Gemini belum diimplementasikan. Detail status dan tahapan kerja ada di [docs/roadmap.md](docs/roadmap.md).
+**Fondasi starter tersedia dan setup resource Google selesai; aplikasi masih pada tahap awal.** setupProject() berhasil dijalankan pada 20 Oktober 2026 dan membuat spreadsheet serta folder Drive, lalu menyimpan konfigurasi di Script Properties. Wizard skala bisnis dan boilerplate GAS sudah ada, tetapi form belum terhubung ke penyimpanan cloud. Preview halaman, template, tema, daftar isi otomatis, ekspor PDF, upload, dan Gemini belum diimplementasikan. Detail status dan tahapan kerja ada di [docs/roadmap.md](docs/roadmap.md).
 
 ## Arsitektur
 
