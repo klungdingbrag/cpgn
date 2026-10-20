@@ -1,96 +1,56 @@
 # Company Profile Generator
 
-Mesin produksi company profile untuk layanan desain dan penerbitan bisnis. Starter ini memisahkan UI statis, API Google Apps Script, data Google Sheets, dan file Google Drive agar biaya operasional awal tetap rendah.
+Mesin produksi company profile untuk layanan desain dan penerbitan bisnis. Frontend statis berjalan di GitHub Pages; Google Apps Script menangani API, Google Sheets menyimpan data, dan Google Drive menyimpan aset.
+
+## Status proyek
+
+**Fondasi starter tersedia; aplikasi masih pada tahap awal.** Wizard skala bisnis dan boilerplate GAS sudah ada. Form belum terhubung ke penyimpanan cloud. Preview halaman, template, tema, daftar isi otomatis, ekspor PDF, upload, dan Gemini belum diimplementasikan. Detail status dan tahapan kerja ada di [docs/roadmap.md](docs/roadmap.md).
 
 ## Arsitektur
 
-```text
-Browser (GitHub Pages)
-  ├─ HTML + Tailwind CDN + Vanilla JS
-  ├─ Preview A4 / ekspor PDF (tahap berikutnya: html2pdf.js, pdf-lib.js)
-  └─ JSONP GET → Google Apps Script Web App
-                    ├─ Google Sheets: satu baris per profileId
-                    ├─ Google Drive: gambar dan PDF
-                    └─ Gemini API (tahap 3)
-```
+Frontend GitHub Pages → wizard input → template → preview A4 → ekspor PDF.
+Google Apps Script menangani API, Sheets menyimpan satu baris per profileId, Drive menyimpan aset, dan Gemini untuk copywriting pada fase 3.
 
-Frontend adalah aplikasi statis. GAS menjadi API dan memakai `PropertiesService` untuk ID spreadsheet, folder Drive, serta kunci Gemini. Deploy Web App dengan akses yang sesuai kebutuhan bisnis. Untuk produksi, pertimbangkan autentikasi dan otorisasi per klien; URL Web App publik bukan mekanisme autentikasi.
+## Struktur repository
 
-### Pohon repository
+- index.html
+- frontend/css/styles.css
+- frontend/js/app.js
+- frontend/assets/logo.svg dan placeholders/
+- gas/setup.gs
+- gas/Code.gs
+- docs/roadmap.md
 
-```text
-company-profile-generator/
-├── index.html
-├── README.md
-├── frontend/
-│   ├── css/styles.css
-│   ├── js/app.js
-│   └── assets/
-│       ├── logo.svg
-│       └── placeholders/       # gambar contoh / placeholder
-├── gas/
-│   ├── setup.gs                # dijalankan manual sekali dari editor GAS
-│   └── Code.gs                 # endpoint doGet/doPost dan operasi data
-└── docs/
-    └── roadmap.md
-```
+Saat ini wizard starter berada di index.html. CSS dan JavaScript terpisah disiapkan sebagai struktur pengembangan lanjutan.
 
-`index.html` memuat wizard dasar secara mandiri agar mudah dicoba. Saat pengembangan berlanjut, pindahkan CSS/JS inline ke `frontend/`.
+## Setup Google Apps Script
 
-## Setup dan deploy
+1. Buat project di https://script.google.com.
+2. Tambahkan file setup.gs dan Code.gs dengan menyalin isi dari folder gas/ di repository.
+3. Jalankan setupProject() dari editor Apps Script dan setujui izin Google.
+4. Fungsi membuat spreadsheet dan folder Drive otomatis, menyiapkan tab Profiles, dan menyimpan ID di Script Properties.
+5. Buka Execution log untuk tautan spreadsheet dan folder. Pemanggilan ulang memakai resource sama dan tidak membuat duplikat.
 
-### Frontend
+## Deploy frontend dan API
 
-1. Buat repository GitHub dan salin isi folder starter ini.
-2. Pada GitHub, buka **Settings → Pages**, pilih branch dan folder root, lalu simpan.
-3. Buka URL Pages yang diberikan GitHub. Tailwind dimuat dari CDN untuk prototipe; untuk produksi, build CSS statis dan pin dependensi.
-4. Masukkan URL Web App GAS pada `GAS_ENDPOINT` di `index.html`.
+1. Aktifkan GitHub Pages dari Settings → Pages dan pilih branch main dengan folder root.
+2. Deploy GAS sebagai Web app dan salin URL /exec.
+3. Hubungkan URL endpoint ke frontend ketika integrasi API dikerjakan.
 
-### Google Sheets dan Drive
+Endpoint GET dapat memakai JSONP untuk baca sederhana. Penyimpanan memakai POST; browser dapat menghadapi redirect/CORS saat memanggil GAS. JSONP bukan autentikasi dan tidak boleh membawa rahasia. Sebelum menyimpan data klien, tetapkan autentikasi, validasi, pembatasan penyalahgunaan, serta kebijakan akses.
 
-1. Buat spreadsheet serta folder Drive untuk aset klien.
-2. Buat project Google Apps Script, lalu tambahkan `gas/setup.gs` dan `gas/Code.gs`.
-3. Jalankan fungsi `setupProject()` sekali dari editor GAS. Isi `SPREADSHEET_ID` dan `DRIVE_FOLDER_ID` melalui prompt; fungsi membuat tab `Profiles` dan menyimpan ID di Script Properties.
-4. Tinjau izin yang diminta dan jalankan dengan akun pemilik data.
+## Arah produk
 
-### Deploy GAS Web App
+Pengguna mengisi data satu kali, lalu memilih template dan tema warna. Template menyusun cover depan, pembuka, daftar isi otomatis, isi profil, penutup, dan back cover. Galeri menjadi bagian portofolio; back cover dapat memakai satu gambar atau kolase dengan informasi kontak yang tetap terbaca.
 
-1. **Deploy → New deployment → Web app**.
-2. Pilih eksekusi sebagai pemilik deployment. Atur siapa yang dapat mengakses sesuai kebijakan Anda.
-3. Salin URL `/exec` ke konfigurasi frontend.
-4. Uji `?action=health&callback=cb` di browser.
+Preview menampilkan halaman A4. Nomor daftar isi dihitung dari pagination final. Cover dan back cover ikut dihitung; hasil saddle stitch ditambah halaman transisi/kosong agar jumlah halaman kelipatan empat. Skala paket menentukan rentang halaman dan bagian yang tersedia.
 
-Endpoint GET memakai JSONP untuk pembacaan sederhana. POST lintas origin ke Apps Script dapat memicu redirect dan kebijakan CORS browser. Boilerplate menyediakan `doPost` untuk penyimpanan, tetapi UI awal belum mengirim write ke server. JSONP dan token rahasia di JavaScript publik tidak layak untuk data sensitif; gunakan autentikasi, validasi, dan kontrol akses yang sesuai.
+## Teknologi target
 
-## Skema data
+- HTML5, Vanilla JavaScript, Tailwind CSS
+- Google Apps Script, Google Sheets, Google Drive
+- html2pdf.js untuk ekspor PDF client-side
+- pdf-lib.js untuk menggabungkan lampiran PDF
+- Gemini API dari GAS dengan key di Script Properties
 
-Satu baris per `profileId`. Kolom meliputi paket/skala bisnis, informasi perusahaan, sejarah, visi-misi, produk, kontak, organisasi, portofolio, legalitas, data operasional kompleks, laporan pencapaian, file, dan timestamp. Kolom tambahan didefinisikan pada `HEADERS` di `gas/Code.gs`.
-
-## Roadmap eksekusi
-
-### Fase 1 — Setup GAS & UI dasar
-
-- Siapkan spreadsheet, Drive, Script Properties, endpoint health/read/save, dan validasi payload.
-- Bangun wizard berdasarkan Startup/UKM, Menengah, dan Korporat.
-- Validasi ukuran gambar maksimum 1 MB di browser sebelum konversi Base64.
-- Tambahkan penyimpanan draft dan status request yang jelas.
-
-### Fase 2 — PDF & layout kelipatan 4
-
-- Bentuk live preview menjadi halaman A4 `210mm × 297mm` dengan ukuran dan margin konsisten.
-- Susun konten berdasarkan paket, pecah konten berlebih secara terkontrol, dan cegah elemen terpotong.
-- Hitung halaman hasil render; tambahkan halaman transisi atau kosong hingga jumlahnya kelipatan 4.
-- Tambahkan `html2pdf.js` untuk ekspor dan `pdf-lib.js` untuk menggabungkan PDF legalitas.
-- Verifikasi hasil cetak di ukuran fisik, termasuk font, gambar, bleed, dan batas aman.
-
-### Fase 3 — Gemini AI Copywriter
-
-- Tambahkan aksi `generateCopy` di GAS yang membaca Gemini key dari Script Properties.
-- Kirim poin mentah dengan konteks field, skala bisnis, bahasa, batas panjang, dan instruksi agar tidak mengarang fakta.
-- Tampilkan hasil sebagai saran yang dapat ditinjau dan diedit sebelum mengganti teks.
-- Terapkan kuota, batas panjang, penanganan error, dan pencatatan pemakaian.
-
-## Batasan starter
-
-Kode ini fondasi prototipe, belum layanan multi-tenant siap produksi. Endpoint write perlu autentikasi, anti-abuse/rate limiting, kebijakan privasi, backup, dan kontrol akses. GAS memiliki kuota serta batas eksekusi; evaluasi sebelum menjanjikan SLA. Integrasi upload, PDF, dan Gemini belum diaktifkan pada UI starter.
-
+Biaya layanan pihak ketiga, kuota Google, dan batas operasional perlu ditinjau sebelum menawarkan SLA atau menyimpan data klien dalam skala besar.
