@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="theme-color" content="#0b1220">
+  <title>Company Profile Studio</title><script src="https://cdn.tailwindcss.com"></script>
+  <style>body{background:#f5f7fb}.step[aria-current="step"]{background:#0f766e;color:white}.field{width:100%;border:1px solid #dbe2ea;border-radius:.75rem;padding:.7rem .85rem;background:white}.field:focus{outline:2px solid #99f6e4;border-color:#0f766e}</style>
+</head>
+<body class="min-h-screen text-slate-800">
+<header class="bg-slate-950 text-white"><div class="mx-auto flex max-w-6xl items-center justify-between px-5 py-5"><div><p class="text-xs uppercase tracking-[.25em] text-teal-300">Studio</p><h1 class="text-xl font-semibold">Company Profile Generator</h1></div><span class="rounded-full border border-slate-700 px-3 py-1 text-xs text-slate-300">Draft lokal</span></div></header>
+<main class="mx-auto grid max-w-6xl gap-6 px-5 py-8 lg:grid-cols-[260px_1fr]">
+  <aside class="rounded-2xl bg-white p-5 shadow-sm"><label for="businessScale" class="mb-2 block text-sm font-medium">Skala bisnis</label><select id="businessScale" class="field"><option value="startup">Startup / UKM · 4–8 halaman</option><option value="mid">Menengah · 8–16 halaman</option><option value="corporate">Korporat · 20–40 halaman</option></select><nav id="stepNav" class="mt-6 space-y-2" aria-label="Tahapan formulir"></nav><p class="mt-6 text-xs leading-5 text-slate-500">Form bertambah sesuai skala yang dipilih. Simpanan API belum dikonfigurasi.</p></aside>
+  <section class="rounded-2xl bg-white p-6 shadow-sm sm:p-8"><div class="mb-6 flex items-start justify-between gap-4"><div><p id="stepCount" class="text-xs font-semibold uppercase tracking-wider text-teal-700"></p><h2 id="stepTitle" class="mt-1 text-2xl font-semibold"></h2><p id="stepHint" class="mt-1 text-sm text-slate-500"></p></div><button id="saveButton" class="rounded-xl border border-slate-300 px-4 py-2 text-sm font-medium hover:bg-slate-50">Simpan draft</button></div>
+    <form id="profileForm" class="space-y-5" novalidate></form><div class="mt-8 flex justify-between border-t border-slate-100 pt-5"><button id="backButton" class="rounded-xl px-4 py-2 text-sm font-medium text-slate-600 hover:bg-slate-100">← Kembali</button><button id="nextButton" class="rounded-xl bg-teal-700 px-5 py-2 text-sm font-semibold text-white hover:bg-teal-800">Lanjut →</button></div><p id="status" class="mt-4 min-h-5 text-sm" role="status" aria-live="polite"></p>
+  </section>
+</main>
+<script>
+  // Isi URL /exec setelah deploy. Form awal menyimpan draft ke browser.
+  const GAS_ENDPOINT = '';
+  const commonSteps = [
+    {title:'Identitas perusahaan',hint:'Mulai dari informasi dasar dan kontak.',fields:[['companyName','Nama perusahaan','text',true],['tagline','Tagline','text'],['industry','Industri','text'],['address','Alamat','textarea'],['phone','Telepon','tel'],['email','Email','email'],['website','Website','url']]},
+    {title:'Cerita & arah bisnis',hint:'Tuliskan fakta atau poin mentah; copywriter AI menyusul pada fase berikutnya.',fields:[['history','Sejarah perusahaan','textarea'],['vision','Visi','textarea'],['mission','Misi','textarea']]},
+    {title:'Produk dan layanan',hint:'Jelaskan penawaran utama kepada calon klien.',fields:[['products','Produk / layanan','textarea']]}
+  ];
+  const scaleSteps={startup:[],mid:[{title:'Organisasi & portofolio',hint:'Bagian tambahan untuk perusahaan menengah.',fields:[['organization','Struktur organisasi','textarea'],['portfolio','Portofolio / dokumentasi','textarea'],['legalitas','Legalitas','textarea']]}],corporate:[{title:'Organisasi & portofolio',hint:'Bagian tambahan untuk perusahaan korporat.',fields:[['organization','Struktur organisasi','textarea'],['portfolio','Portofolio / dokumentasi','textarea'],['legalitas','Legalitas','textarea']]},{title:'Operasional & pencapaian',hint:'Rangkuman data kompleks dan laporan pencapaian.',fields:[['operationalData','Data operasional kompleks','textarea'],['achievementReport','Laporan pencapaian','textarea']]}]};
+  const finalStep={title:'Catatan produksi',hint:'Tambahkan arahan yang membantu proses produksi.',fields:[['contactNotes','Catatan untuk tim produksi','textarea']]};
+  const form=document.querySelector('#profileForm'),nav=document.querySelector('#stepNav'),scaleSelect=document.querySelector('#businessScale');let current=0;
+  function steps(){return [...commonSteps,...scaleSteps[scaleSelect.value],finalStep]}
+  function render(){const list=steps();current=Math.min(current,list.length-1);const step=list[current];document.querySelector('#stepCount').textContent=`Langkah ${current+1} dari ${list.length}`;document.querySelector('#stepTitle').textContent=step.title;document.querySelector('#stepHint').textContent=step.hint;nav.innerHTML=list.map((s,i)=>`<button type="button" data-step="${i}" aria-current="${i===current?'step':'false'}" class="step w-full rounded-xl px-3 py-2 text-left text-sm ${i===current?'':'text-slate-600 hover:bg-slate-50'}">${String(i+1).padStart(2,'0')} &nbsp; ${s.title}</button>`).join('');nav.querySelectorAll('[data-step]').forEach(b=>b.onclick=()=>{current=Number(b.dataset.step);render()});form.innerHTML=step.fields.map(([key,label,type,required])=>`<label class="block"><span class="mb-2 block text-sm font-medium">${label}${required?' <span class="text-rose-600">*</span>':''}</span>${type==='textarea'?`<textarea class="field min-h-28" name="${key}" ${required?'required':''} placeholder="Tulis poin atau informasi di sini..."></textarea>`:`<input class="field" name="${key}" type="${type}" ${required?'required':''} placeholder="${label}">`}</label>`).join('');document.querySelector('#backButton').disabled=current===0;document.querySelector('#backButton').classList.toggle('opacity-40',current===0);document.querySelector('#nextButton').textContent=current===list.length-1?'Selesai':'Lanjut →'}
+  function collectProfile(){let data={};try{data=JSON.parse(localStorage.getItem('cpDraft')||'{}')}catch(_){}Object.assign(data,Object.fromEntries(new FormData(form).entries()));data.businessScale=scaleSelect.value;data.package=scaleSelect.options[scaleSelect.selectedIndex].text;return data}
+  document.querySelector('#backButton').onclick=()=>{if(current>0){current--;render()}};
+  document.querySelector('#nextButton').onclick=()=>{if(!form.reportValidity())return;if(current<steps().length-1){current++;render()}else document.querySelector('#status').textContent='Form dasar selesai. Draft dapat disimpan melalui tombol Simpan draft.'};
+  document.querySelector('#saveButton').onclick=()=>{localStorage.setItem('cpDraft',JSON.stringify(collectProfile()));document.querySelector('#status').textContent=GAS_ENDPOINT?'Draft tersimpan di browser. Endpoint cloud perlu dihubungkan.':'Draft tersimpan di browser ini. Konfigurasikan GAS_ENDPOINT untuk penyimpanan cloud.'};
+  scaleSelect.onchange=()=>{current=0;render()};render();
+</script>
+</body></html>
+
