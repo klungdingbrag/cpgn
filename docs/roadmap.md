@@ -4,18 +4,19 @@ Dokumen ini menjadi sumber utama urutan kerja dan status proyek. Targetnya adala
 
 ## Posisi proyek saat ini
 
-**Tahap: fondasi starter tersedia; setup resource Google selesai; aplikasi masih di tahap awal.**
+**Tahap: fondasi starter tersedia; setup dan deployment API dasar selesai; aplikasi masih di tahap awal.**
 
 ### Sudah tersedia dan diverifikasi
 
 - Struktur awal repository, README, dan roadmap.
 - index.html dengan wizard dasar dan pilihan skala Startup/UKM, Menengah, dan Korporat.
 - gas/setup.gs membuat spreadsheet dan folder Drive otomatis, menyiapkan tab Profiles, lalu menyimpan ID ke Script Properties.
-- setupProject() berhasil dijalankan pada 20 Oktober 2026. Execution log mengonfirmasi spreadsheet dan folder Drive berhasil dibuat, konfigurasi tersimpan, dan eksekusi selesai.
+- setupProject() berhasil dijalankan pada 20 Oktober 2026. Execution log mengonfirmasi spreadsheet dan folder Drive berhasil dibuat serta konfigurasi tersimpan.
 - Pemanggilan ulang setupProject() menggunakan resource yang sama dan tidak membuat duplikat.
 - gas/Code.gs menyediakan endpoint dasar health, baca profil, dan simpan profil.
+- GAS Web App berhasil dideploy; health check mengembalikan { ok: true, service: "company-profile-api" }.
 
-Tautan dan ID resource Google tidak dicantumkan di repository publik. Keduanya tersedia pada akun Google pemilik dan Script Properties project GAS.
+Tautan dan ID resource Google tidak dicantumkan di repository publik. Keduanya tersedia pada akun Google pemilik dan Script Properties project GAS. URL deployment tidak dicatat di sini; simpan di konfigurasi lokal frontend saat integrasi dilakukan.
 
 ### Belum tersedia
 
@@ -24,7 +25,7 @@ Tautan dan ID resource Google tidak dicantumkan di repository publik. Keduanya t
 - Belum ada live preview, template profil, tema warna, daftar isi otomatis, susunan halaman, atau ekspor PDF.
 - Belum ada penggabungan legalitas maupun integrasi Gemini.
 
-**Langkah aktif berikutnya:** sambungkan simpan/muat profil melalui GAS dan pertahankan state form saat berpindah langkah. Setelah alur data stabil, bangun preview dan template sebagai satu alur dokumen.
+**Langkah aktif berikutnya:** hubungkan simpan/muat profil melalui GAS dan pertahankan state form saat berpindah langkah. Sebelum membuka penyimpanan POST ke pengguna, tetapkan perlindungan API. Setelah alur data stabil, bangun preview dan template sebagai satu alur dokumen.
 
 ## Spesifikasi dokumen
 
@@ -44,6 +45,7 @@ Galeri dan dokumentasi terutama menjadi bagian portofolio di isi dokumen. Back c
 ## Fase 1 — GAS, model data, dan UI dasar
 
 - [x] Jalankan setupProject(); spreadsheet dan folder Drive berhasil dibuat dan ID tersimpan di Script Properties.
+- [x] Deploy GAS Web App dan verifikasi endpoint health.
 - [ ] Tetapkan skema profil, aset, bagian dokumen, dan skala bisnis.
 - [ ] Pertahankan nilai form saat berpindah langkah atau mengganti skala.
 - [ ] Hubungkan simpan/muat profil dengan GAS dan tampilkan status/error.
