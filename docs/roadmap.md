@@ -4,14 +4,18 @@ Dokumen ini menjadi sumber utama urutan kerja dan status proyek. Targetnya adala
 
 ## Posisi proyek saat ini
 
-**Tahap: fondasi starter tersedia; implementasi aplikasi belum dimulai penuh.**
+**Tahap: fondasi starter tersedia; setup resource Google selesai; aplikasi masih di tahap awal.**
 
-### Sudah tersedia
+### Sudah tersedia dan diverifikasi
 
 - Struktur awal repository, README, dan roadmap.
 - index.html dengan wizard dasar dan pilihan skala Startup/UKM, Menengah, dan Korporat.
-- gas/setup.gs membuat spreadsheet dan folder Drive otomatis, menyiapkan tab Profiles, lalu menyimpan ID ke Script Properties. Pemanggilan ulang memakai resource yang sama.
+- gas/setup.gs membuat spreadsheet dan folder Drive otomatis, menyiapkan tab Profiles, lalu menyimpan ID ke Script Properties.
+- setupProject() berhasil dijalankan pada 20 Oktober 2026. Execution log mengonfirmasi spreadsheet dan folder Drive berhasil dibuat, konfigurasi tersimpan, dan eksekusi selesai.
+- Pemanggilan ulang setupProject() menggunakan resource yang sama dan tidak membuat duplikat.
 - gas/Code.gs menyediakan endpoint dasar health, baca profil, dan simpan profil.
+
+Tautan dan ID resource Google tidak dicantumkan di repository publik. Keduanya tersedia pada akun Google pemilik dan Script Properties project GAS.
 
 ### Belum tersedia
 
@@ -20,7 +24,7 @@ Dokumen ini menjadi sumber utama urutan kerja dan status proyek. Targetnya adala
 - Belum ada live preview, template profil, tema warna, daftar isi otomatis, susunan halaman, atau ekspor PDF.
 - Belum ada penggabungan legalitas maupun integrasi Gemini.
 
-**Langkah aktif berikutnya:** rapikan model data dan state wizard, lalu sambungkan simpan/muat profil melalui GAS. Setelah alur data stabil, bangun preview dan template sebagai satu alur dokumen.
+**Langkah aktif berikutnya:** sambungkan simpan/muat profil melalui GAS dan pertahankan state form saat berpindah langkah. Setelah alur data stabil, bangun preview dan template sebagai satu alur dokumen.
 
 ## Spesifikasi dokumen
 
@@ -39,13 +43,13 @@ Galeri dan dokumentasi terutama menjadi bagian portofolio di isi dokumen. Back c
 
 ## Fase 1 — GAS, model data, dan UI dasar
 
-- Jalankan setupProject() dan verifikasi resource pada akun Google pemilik.
-- Tetapkan skema profil, aset, bagian dokumen, dan skala bisnis.
-- Pertahankan nilai form saat berpindah langkah atau mengganti skala.
-- Hubungkan simpan/muat profil dengan GAS dan tampilkan status/error.
-- Validasi tipe dan ukuran gambar maksimum 1 MB sebelum Base64; validasi ulang di backend.
-- Siapkan upload ke Drive dan simpan referensi file, bukan Base64 permanen di Sheets.
-- Tetapkan akses API yang layak sebelum digunakan untuk data klien.
+- [x] Jalankan setupProject(); spreadsheet dan folder Drive berhasil dibuat dan ID tersimpan di Script Properties.
+- [ ] Tetapkan skema profil, aset, bagian dokumen, dan skala bisnis.
+- [ ] Pertahankan nilai form saat berpindah langkah atau mengganti skala.
+- [ ] Hubungkan simpan/muat profil dengan GAS dan tampilkan status/error.
+- [ ] Validasi tipe dan ukuran gambar maksimum 1 MB sebelum Base64; validasi ulang di backend.
+- [ ] Siapkan upload ke Drive dan simpan referensi file, bukan Base64 permanen di Sheets.
+- [ ] Tetapkan akses API yang layak sebelum digunakan untuk data klien.
 
 **Hasil fase:** data profil dapat diisi, disimpan, dimuat kembali, dan aset dapat dikelola.
 
