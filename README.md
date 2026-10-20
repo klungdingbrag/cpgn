@@ -4,7 +4,7 @@ Mesin produksi company profile untuk layanan desain dan penerbitan bisnis. Front
 
 ## Status proyek
 
-**Fondasi starter tersedia dan API GAS sudah dideploy; aplikasi masih pada tahap awal.** setupProject() berhasil dijalankan pada 20 Oktober 2026 dan membuat spreadsheet serta folder Drive, lalu menyimpan konfigurasi di Script Properties. Health check Web App juga sudah berhasil. Wizard skala bisnis dan boilerplate GAS sudah ada, tetapi form belum terhubung ke penyimpanan cloud. Preview halaman, template, tema, daftar isi otomatis, ekspor PDF, upload, dan Gemini belum diimplementasikan. Detail status dan tahapan kerja ada di [docs/roadmap.md](docs/roadmap.md).
+**Alur dasar wizard dan kode simpan/muat cloud sudah ada; verifikasi langsung melalui GitHub Pages masih menunggu.** setupProject() berhasil membuat spreadsheet dan folder Drive serta menyimpan konfigurasi di Script Properties. Health check GAS berhasil. Form menyimpan draft lokal otomatis, dan sudah memiliki tombol simpan/muat melalui GAS. Preview halaman, template, tema, daftar isi otomatis, ekspor PDF, upload, dan Gemini belum diimplementasikan. Detail status dan tahapan kerja ada di [docs/roadmap.md](docs/roadmap.md).
 
 ## Arsitektur
 
@@ -35,9 +35,9 @@ Saat ini wizard starter berada di index.html. CSS dan JavaScript terpisah disiap
 
 1. Aktifkan GitHub Pages dari Settings → Pages dan pilih branch main dengan folder root.
 2. Deploy GAS sebagai Web app dan salin URL /exec.
-3. Simpan URL endpoint GAS sebagai konfigurasi saat integrasi API dikerjakan. Health check telah diverifikasi; alur simpan/muat profil dari UI belum terhubung.
+3. URL Web App saat ini dikonfigurasi di frontend/js/app.js. UI menyediakan Simpan ke cloud (menghasilkan ID profil) dan Muat profil dari cloud (memerlukan ID tersebut). Uji alur ini dari URL GitHub Pages dengan data percobaan.
 
-Endpoint GET dapat memakai JSONP untuk baca sederhana. Penyimpanan memakai POST; browser dapat menghadapi redirect/CORS saat memanggil GAS. JSONP bukan autentikasi dan tidak boleh membawa rahasia. Sebelum menyimpan data klien, tetapkan autentikasi, validasi, pembatasan penyalahgunaan, serta kebijakan akses.
+Pembacaan memakai JSONP dan penyimpanan memakai POST sederhana, lalu UI mencoba memverifikasi hasil simpan dengan membaca profil kembali. Endpoint GAS saat ini belum memiliki autentikasi pengguna atau pembatasan penyalahgunaan. Gunakan data percobaan saja sampai perlindungan akses dan kebijakan data klien ditetapkan. Jangan menaruh rahasia di frontend publik.
 
 ## Arah produk
 
