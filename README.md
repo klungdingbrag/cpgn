@@ -4,7 +4,7 @@ Mesin produksi company profile untuk layanan desain dan penerbitan bisnis. Front
 
 ## Status proyek
 
-**Fondasi starter tersedia dan setup resource Google selesai; aplikasi masih pada tahap awal.** setupProject() berhasil dijalankan pada 20 Oktober 2026 dan membuat spreadsheet serta folder Drive, lalu menyimpan konfigurasi di Script Properties. Wizard skala bisnis dan boilerplate GAS sudah ada, tetapi form belum terhubung ke penyimpanan cloud. Preview halaman, template, tema, daftar isi otomatis, ekspor PDF, upload, dan Gemini belum diimplementasikan. Detail status dan tahapan kerja ada di [docs/roadmap.md](docs/roadmap.md).
+**Fondasi starter tersedia dan API GAS sudah dideploy; aplikasi masih pada tahap awal.** setupProject() berhasil dijalankan pada 20 Oktober 2026 dan membuat spreadsheet serta folder Drive, lalu menyimpan konfigurasi di Script Properties. Health check Web App juga sudah berhasil. Wizard skala bisnis dan boilerplate GAS sudah ada, tetapi form belum terhubung ke penyimpanan cloud. Preview halaman, template, tema, daftar isi otomatis, ekspor PDF, upload, dan Gemini belum diimplementasikan. Detail status dan tahapan kerja ada di [docs/roadmap.md](docs/roadmap.md).
 
 ## Arsitektur
 
@@ -35,7 +35,7 @@ Saat ini wizard starter berada di index.html. CSS dan JavaScript terpisah disiap
 
 1. Aktifkan GitHub Pages dari Settings → Pages dan pilih branch main dengan folder root.
 2. Deploy GAS sebagai Web app dan salin URL /exec.
-3. Hubungkan URL endpoint ke frontend ketika integrasi API dikerjakan.
+3. Simpan URL endpoint GAS sebagai konfigurasi saat integrasi API dikerjakan. Health check telah diverifikasi; alur simpan/muat profil dari UI belum terhubung.
 
 Endpoint GET dapat memakai JSONP untuk baca sederhana. Penyimpanan memakai POST; browser dapat menghadapi redirect/CORS saat memanggil GAS. JSONP bukan autentikasi dan tidak boleh membawa rahasia. Sebelum menyimpan data klien, tetapkan autentikasi, validasi, pembatasan penyalahgunaan, serta kebijakan akses.
 
