@@ -345,10 +345,11 @@ function renderCover() {
     escapeHtml(profile.industry || 'Profil Perusahaan') + '</p><h1 class="mt-4 text-5xl font-bold leading-tight">' + escapeHtml(companyName()) +
     '</h1><p class="cover-tagline mt-5">' + escapeHtml(profile.tagline || '') + '</p></div><p class="text-sm text-white/75">' + new Date().getFullYear() + '</p></div></article>';
 }
-function renderToc(entries) {
+function renderToc(entries, pageNumber, part, totalParts) {
   const rows = entries.map(item => '<div class="toc-row"><span>' + escapeHtml(item.title) + '</span><span>' + item.page + '</span></div>').join('');
-  return '<article class="preview-page"><div class="page-topline"></div><p class="page-eyebrow">Overview</p><h2 class="mt-3 text-4xl font-semibold">Daftar Isi</h2><div class="toc-list">' +
-    rows + '</div><div class="page-footer"><span>' + escapeHtml(companyName()) + '</span><span>2</span></div></article>';
+  const title = totalParts > 1 ? 'Daftar Isi · ' + part : 'Daftar Isi';
+  return '<article class="preview-page"><div class="page-topline"></div><p class="page-eyebrow">Overview</p><h2 class="mt-3 text-4xl font-semibold">' + title + '</h2><div class="toc-list">' +
+    rows + '</div><div class="page-footer"><span>' + escapeHtml(companyName()) + '</span><span>' + pageNumber + '</span></div></article>';
 }
 function renderBackCover() {
   const image = profile.assets.backCover && profile.assets.backCover.dataUrl ? '<img class="cover-photo" src="' + escapeHtml(profile.assets.backCover.dataUrl) + '" alt="">' : '';
@@ -366,16 +367,16 @@ function buildPages() {
   const content = []; const entries = [];
   function add(title, body, eyebrow) {
     if (!body) return;
-    const page = content.length + 3;
-    if (!entries.some(item => item.title === title)) entries.push({ title, page });
+    const pageIndex = content.length;
+    if (!entries.some(item => item.title === title)) entries.push({ title, index: pageIndex });
     content.push({ title, body, eyebrow: eyebrow || 'Company Profile' });
   }
+  const historyParts = textChunks(profile.history || (companyName() + ' menyajikan profil perusahaan dan ruang lingkup bisnisnya pada dokumen ini.'), 1050);
   const about = [
     profile.industry ? '<p class="page-eyebrow">' + escapeHtml(profile.industry) + '</p>' : '',
     profile.tagline ? '<p class="text-xl font-medium">' + escapeHtml(profile.tagline) + '</p>' : '',
-    textMarkup(profile.history || (companyName() + ' menyajikan profil perusahaan dan ruang lingkup bisnisnya pada dokumen ini.'))
+    textMarkup(historyParts[0] || '')
   ].join('');
-  const historyParts = textChunks(profile.history || ' ', 1050);
   historyParts.forEach((part, index) => add(index ? 'Sejarah (lanjutan)' : 'Tentang Perusahaan', index ? textMarkup(part) : about));
   if (profile.vision || profile.mission) {
     const vm = [['Visi', profile.vision], ['Misi', profile.mission]].filter(([, value]) => value);
@@ -404,8 +405,16 @@ function buildPages() {
     .filter(([, value]) => value).map(([label, value]) => '<div class="data-card"><h3>' + label + '</h3><p>' + escapeHtml(value) + '</p></div>').join('');
   add('Kontak', '<p>' + escapeHtml(profile.tagline || 'Mari berdiskusi tentang peluang kolaborasi.') + '</p>' + (contacts || '<p>Tambahkan kontak perusahaan pada formulir.</p>'), 'Get in Touch');
 
-  const pages = [{ kind: 'cover' }, { kind: 'toc', entries }];
-  content.forEach((page, index) => pages.push({ kind: 'content', ...page, number: index + 3 }));
+  const tocSize = 10;
+  const tocCount = Math.max(1, Math.ceil(entries.length / tocSize));
+  const pages = [{ kind: 'cover' }];
+  for (let i = 0; i < tocCount; i++) {
+    pages.push({ kind: 'toc', entries: entries.slice(i * tocSize, (i + 1) * tocSize), number: i + 2, part: i + 1, totalParts: tocCount });
+  }
+  content.forEach((page, index) => pages.push({ kind: 'content', ...page, number: 2 + tocCount + index }));
+  entries.forEach(entry => { entry.page = 2 + tocCount + entry.index; });
+  // Replace TOC specs after final page numbers are known.
+  for (const page of pages) if (page.kind === 'toc') page.entries = entries.slice((page.part - 1) * tocSize, page.part * tocSize);
   const padding = (4 - ((pages.length + 1) % 4)) % 4;
   for (let i = 0; i < padding; i++) pages.push({ kind: 'transition', number: pages.length + 1 });
   pages.push({ kind: 'back' });
@@ -417,7 +426,7 @@ function renderDocument() {
     .forEach(([key, value]) => previewPages.style.setProperty(key, value));
   const pages = buildPages();
   previewPages.innerHTML = pages.map(page => page.kind === 'cover' ? renderCover() :
-    page.kind === 'toc' ? renderToc(page.entries) :
+    page.kind === 'toc' ? renderToc(page.entries, page.number, page.part, page.totalParts) :
     page.kind === 'back' ? renderBackCover() :
     page.kind === 'transition' ? renderTransition(page.number) :
     innerPage(page.title, page.body, page.number, page.eyebrow)).join('');
