@@ -4,31 +4,31 @@ Dokumen ini menjadi sumber utama urutan kerja dan status proyek. Targetnya adala
 
 ## Posisi proyek saat ini
 
-**Tahap: fondasi dan alur dasar simpan/muat telah ditulis; verifikasi langsung dari GitHub Pages masih menunggu.**
+**Tahap: fondasi, setup GAS, dan alur simpan/muat profil sudah berhasil digunakan. Tahap berikutnya adalah template dan preview dokumen.**
 
-### Sudah tersedia
+### Sudah tersedia dan diverifikasi
 
 - Struktur awal repository, README, dan roadmap.
 - Wizard responsif di index.html dengan pilihan skala Startup/UKM, Menengah, dan Korporat.
 - frontend/js/app.js mempertahankan nilai antar langkah dan menyimpan draft lokal otomatis.
-- Tombol simpan cloud membuat ID profil, mengirim data ke GAS, lalu mencoba memverifikasi penyimpanan dengan membaca profil kembali.
+- Tombol simpan cloud membuat ID profil, mengirim data ke GAS, lalu memverifikasi dengan membaca profil kembali.
 - Tombol muat cloud membaca profil menggunakan ID.
-- URL GAS yang diberikan pengguna telah dikonfigurasi di frontend/js/app.js.
+- Pengguna telah mengonfirmasi pembuatan ID, penyimpanan, dan pemuatan ulang profil berhasil dari UI pada 21 Oktober 2026.
+- URL GAS didefinisikan pada frontend/js/app.js.
 - gas/setup.gs membuat spreadsheet dan folder Drive, menyiapkan tab Profiles, lalu menyimpan ID ke Script Properties.
-- setupProject() berhasil dijalankan pada 20 Oktober 2026; Execution log mengonfirmasi resource dibuat dan konfigurasi tersimpan.
+- setupProject() berhasil dijalankan pada 20 Oktober 2026.
 - GAS Web App berhasil dideploy; health check mengembalikan { ok: true, service: "company-profile-api" }.
 - gas/Code.gs menyediakan endpoint health, baca profil, dan simpan profil.
 
 ### Masih perlu dilakukan
 
-- Uji alur simpan dan muat dari domain GitHub Pages dengan data percobaan.
-- Pastikan GitHub Pages aktif dan versi terbaru sudah terbit.
 - Lindungi API dari akses tulis/ubah yang tidak berwenang sebelum menyimpan data klien sungguhan.
+- Strukturkan produk, layanan, portofolio, dan aset menjadi data yang dapat ditata per halaman.
 - Belum ada upload gambar dari UI ke Drive.
 - Belum ada live preview, template profil, tema warna, daftar isi otomatis, susunan halaman, atau ekspor PDF.
 - Belum ada penggabungan legalitas maupun integrasi Gemini.
 
-**Langkah aktif berikutnya:** buka UI yang terbit di GitHub Pages, simpan profil percobaan, catat ID yang ditampilkan, lalu muat profil itu kembali. Setelah alur tersebut terverifikasi dan akses API ditinjau, lanjutkan upload aset dan penyusunan template/preview.
+**Langkah aktif berikutnya:** mulai Fase 2 dengan mendefinisikan data dokumen terstruktur dan membangun satu template profesional dengan preview A4. Preview awal memakai placeholder gambar; upload gambar, daftar isi final, dan ekspor PDF menyusul dalam fase yang sama.
 
 ## Spesifikasi dokumen
 
@@ -50,29 +50,29 @@ Galeri dan dokumentasi terutama menjadi bagian portofolio di isi dokumen. Back c
 - [x] Jalankan setupProject(); spreadsheet dan folder Drive berhasil dibuat dan ID tersimpan di Script Properties.
 - [x] Deploy GAS Web App dan verifikasi endpoint health.
 - [x] Implementasikan wizard yang mempertahankan isian saat berpindah langkah dan mengganti skala.
-- [x] Implementasikan draft lokal serta kode simpan/muat profil dari GAS.
-- [ ] Verifikasi alur simpan/muat langsung dari GitHub Pages.
+- [x] Implementasikan draft lokal serta simpan/muat profil dari GAS.
+- [x] Verifikasi langsung dari pengguna bahwa simpan dan muat ulang profil berhasil.
 - [ ] Tetapkan skema profil/aset dan validasi konsisten di frontend/backend.
+- [ ] Lindungi akses API sebelum digunakan dengan data klien.
 - [ ] Validasi tipe dan ukuran gambar maksimum 1 MB sebelum Base64; validasi ulang di backend.
 - [ ] Siapkan upload ke Drive dan simpan referensi file, bukan Base64 permanen di Sheets.
-- [ ] Tetapkan akses API yang layak sebelum digunakan untuk data klien.
 
-**Hasil fase:** data profil dapat diisi, disimpan, dimuat kembali, dan aset dapat dikelola.
+**Hasil fase:** profil dasar dapat disimpan dan dimuat. Pengamanan akses dan pengelolaan aset masih perlu diselesaikan sebelum data klien sungguhan.
 
 ## Fase 2 — Template, preview, dan PDF siap cetak
 
-- Mulai dengan satu template profesional lengkap; tambah variasi setelah alur cetak stabil.
-- Sediakan pilihan tema warna terkurasi dan opsi font. Tema hanya mengubah presentasi, bukan isi.
-- Tampilkan preview halaman A4 210 × 297 mm, navigasi halaman, dan bagian yang perlu dilengkapi.
-- Terapkan cover, pembuka, isi dinamis, daftar isi, penutup, dan back cover.
-- Hitung daftar isi setelah pagination final agar nomor halaman akurat.
-- Tempatkan galeri di isi dokumen; sediakan gambar/kolase pilihan untuk back cover.
-- Sesuaikan bagian dan rentang halaman: Startup/UKM 4–8, Menengah 8–16, Korporat 20–40.
-- Hitung halaman termasuk cover dan back cover; tambah halaman transisi/kosong hingga kelipatan empat dan tampilkan di preview.
-- Tambahkan ekspor PDF A4 dengan html2pdf.js dan penggabungan legalitas dengan pdf-lib.js.
-- Periksa pemenggalan konten, font, kualitas gambar, margin aman, bleed, dan urutan halaman.
+1. Definisikan model dokumen terstruktur untuk kontak, produk/layanan, portofolio, dan bagian opsional.
+2. Implementasikan satu template profesional end-to-end: cover, pembuka, isi, daftar isi, penutup, back cover.
+3. Tambahkan pemilih tema warna terkurasi dan preview A4 210 × 297 mm per halaman.
+4. Tambahkan upload gambar maksimum 1 MB, validasi, dan penyimpanan aset ke Drive.
+5. Hitung daftar isi dari pagination final.
+6. Sesuaikan isi dan rentang halaman menurut paket: Startup/UKM 4–8, Menengah 8–16, Korporat 20–40.
+7. Tambah halaman transisi/kosong hingga jumlah halaman termasuk cover/back cover menjadi kelipatan empat.
+8. Tambahkan ekspor PDF A4 memakai html2pdf.js dan penggabungan legalitas dengan pdf-lib.js.
+9. Periksa pemenggalan konten, font, kualitas gambar, margin aman, bleed, dan urutan halaman.
+10. Setelah alur cetak stabil, tambahkan template alternatif dan pilihan layout galeri/back cover.
 
-**Hasil fase:** pengguna memilih template dan tema, meninjau seluruh halaman, lalu mengunduh PDF untuk cetak.
+**Hasil fase:** pengguna memilih template dan tema, meninjau seluruh halaman, lalu mengunduh PDF yang siap dicetak.
 
 ## Fase 3 — AI Copywriter dan penyempurnaan produk
 
