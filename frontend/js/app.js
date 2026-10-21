@@ -83,6 +83,7 @@ function normalizeProfile(data) {
   if (!data.assets || typeof data.assets !== 'object') data.assets = {};
   data.assets.cover = data.assets.cover || {};
   data.assets.backCover = data.assets.backCover || {};
+  data.assets.sections = data.assets.sections || {};
   return data;
 }
 function readLocalDraft() {
@@ -166,9 +167,11 @@ function renderItemsEditor(step) {
     }));
     card.append(header, itemField(item, 'title', step.itemKind === 'product' ? 'Nama produk/layanan' : 'Nama proyek'));
     card.append(itemField(item, 'description', 'Deskripsi', 'textarea'));
+    item.image = item.image || {};
+    if (step.itemKind === 'product') renderImageUploader(card, 'Foto produk/layanan (opsional)', item.image);
     if (step.itemKind === 'portfolio') {
       card.append(itemField(item, 'year', 'Tahun (opsional)'));
-      item.image = item.image || {}; renderImageUploader(card, 'Foto portofolio (opsional)', item.image);
+      renderImageUploader(card, 'Foto portofolio (opsional)', item.image);
     }
     form.append(card);
   });
@@ -182,6 +185,18 @@ function renderVisuals() {
   profile.assets.cover = profile.assets.cover || {}; profile.assets.backCover = profile.assets.backCover || {};
   renderImageUploader(form, 'Foto cover depan', profile.assets.cover);
   renderImageUploader(form, 'Foto pilihan back cover (opsional)', profile.assets.backCover);
+  profile.assets.sections = profile.assets.sections || {};
+  [
+    ['story', 'Foto bab cerita perusahaan'],
+    ['vision', 'Foto bab visi dan misi'],
+    ['products', 'Foto pembuka bab produk dan layanan'],
+    ['organization', 'Foto bab organisasi dan legalitas'],
+    ['achievement', 'Foto bab operasional dan pencapaian'],
+    ['transition', 'Foto halaman transisi (opsional)']
+  ].forEach(([key, label]) => {
+    profile.assets.sections[key] = profile.assets.sections[key] || {};
+    renderImageUploader(form, label, profile.assets.sections[key]);
+  });
 }
 function renderReview() {
   const target = document.querySelector('#reviewSummary'); target.replaceChildren();
@@ -276,7 +291,7 @@ function hydrateAsset(owner) {
     .then(result => { if (result.ok && result.dataUrl) Object.assign(owner, result); });
 }
 async function hydrateAssets() {
-  const owners = [profile.assets && profile.assets.cover, profile.assets && profile.assets.backCover, ...(profile.portfolio || []).map(item => item.image)];
+  const owners = [profile.assets && profile.assets.cover, profile.assets && profile.assets.backCover, ...Object.values(profile.assets && profile.assets.sections || {}), ...(profile.products || []).map(item => item.image), ...(profile.portfolio || []).map(item => item.image)];
   const outcomes = await Promise.allSettled(owners.map(hydrateAsset)); persistLocal(); return outcomes;
 }
 async function loadFromCloud(id) {
@@ -332,9 +347,10 @@ function textChunks(value, limit = 900) {
 }
 function textMarkup(value) { return textChunks(value).map(text => '<p>' + escapeHtml(text) + '</p>').join(''); }
 function companyName() { return profile.companyName || 'Nama Perusahaan'; }
-function innerPage(title, body, number, eyebrow = 'Company Profile') {
+function innerPage(title, body, number, eyebrow = 'Company Profile', imageUrl = '') {
+  const image = imageUrl ? '<div class="chapter-image"><img src="' + escapeHtml(imageUrl) + '" alt=""></div>' : '';
   return '<article class="preview-page content-page"><div class="page-topline"></div><p class="page-eyebrow">' + escapeHtml(eyebrow) +
-    '</p><h2 class="mt-3 text-3xl font-semibold">' + escapeHtml(title) + '</h2><div class="content-body mt-8">' + body +
+    '</p><h2 class="chapter-title">' + escapeHtml(title) + '</h2>' + image + '<div class="content-body">' + body +
     '</div><div class="page-footer"><span>' + escapeHtml(companyName()) + '</span><span>' + number + '</span></div></article>';
 }
 function renderCover() {
@@ -360,61 +376,80 @@ function renderBackCover() {
     '</div><p class="text-sm text-white/70">' + escapeHtml(profile.tagline || '') + '</p></div></article>';
 }
 function renderTransition(number) {
-  return '<article class="preview-page transition-page"><p class="page-eyebrow">Company Profile</p><h2 class="mt-5 text-4xl font-semibold">Membangun masa depan bersama</h2><p class="mt-5 max-w-xl text-lg">' +
-    escapeHtml(profile.tagline || companyName()) + '</p><div class="page-footer"><span>' + escapeHtml(companyName()) + '</span><span>' + number + '</span></div></article>';
+  const section = profile.assets.sections && profile.assets.sections.transition;
+  const imageUrl = (section && section.dataUrl) || (profile.assets.backCover && profile.assets.backCover.dataUrl) || '';
+  const image = imageUrl ? '<img class="transition-photo" src="' + escapeHtml(imageUrl) + '" alt="">' : '';
+  return '<article class="preview-page transition-page">' + image + '<div class="transition-overlay"></div><div class="transition-copy">' +
+    (profile.tagline ? '<p class="page-eyebrow">Company Profile</p><h2>' + escapeHtml(profile.tagline) + '</h2>' : '') +
+    '</div><div class="page-footer"><span>' + escapeHtml(companyName()) + '</span><span>' + number + '</span></div></article>';
 }
 function buildPages() {
   const content = []; const entries = [];
-  function add(title, body, eyebrow) {
-    if (!body) return;
+  function add(title, body, eyebrow, imageKey) {
+    if (!String(body || '').trim()) return;
     const pageIndex = content.length;
     if (!entries.some(item => item.title === title)) entries.push({ title, index: pageIndex });
-    content.push({ title, body, eyebrow: eyebrow || 'Company Profile' });
+    const sectionImage = imageKey && profile.assets.sections && profile.assets.sections[imageKey];
+    content.push({ title, body, eyebrow: eyebrow || 'Company Profile', imageUrl: sectionImage && sectionImage.dataUrl || '' });
   }
-  const historyParts = textChunks(profile.history || (companyName() + ' menyajikan profil perusahaan dan ruang lingkup bisnisnya pada dokumen ini.'), 1050);
+  const historyParts = textChunks(profile.history || '', 1050);
   const about = [
-    profile.industry ? '<p class="page-eyebrow">' + escapeHtml(profile.industry) + '</p>' : '',
-    profile.tagline ? '<p class="text-xl font-medium">' + escapeHtml(profile.tagline) + '</p>' : '',
+    profile.industry ? '<p class="chapter-kicker">' + escapeHtml(profile.industry) + '</p>' : '',
+    profile.tagline ? '<p class="chapter-lead">' + escapeHtml(profile.tagline) + '</p>' : '',
     textMarkup(historyParts[0] || '')
   ].join('');
-  historyParts.forEach((part, index) => add(index ? 'Sejarah (lanjutan)' : 'Tentang Perusahaan', index ? textMarkup(part) : about));
+  if (about.trim()) add('Tentang Perusahaan', about, 'Company Overview', 'story');
+  historyParts.slice(1).forEach(part => add('Sejarah (lanjutan)', textMarkup(part), 'Company Overview', 'story'));
+
   if (profile.vision || profile.mission) {
-    const vm = [['Visi', profile.vision], ['Misi', profile.mission]].filter(([, value]) => value);
-    vm.forEach(([label, value]) => textChunks(value, 850).forEach((part, index) =>
-      add(index ? label + ' (lanjutan)' : (label === 'Visi' ? 'Visi & Misi' : 'Misi'), '<div class="data-card"><h3>' + label + '</h3>' + textMarkup(part) + '</div>')));
+    [['Visi', profile.vision], ['Misi', profile.mission]].filter(([, value]) => value).forEach(([label, value]) =>
+      textChunks(value, 850).forEach((part, index) =>
+        add(index ? label + ' (lanjutan)' : 'Visi & Misi',
+          '<div class="data-card"><h3>' + label + '</h3>' + textMarkup(part) + '</div>',
+          'Purpose & Direction', 'vision')));
   }
+
   (profile.products || []).forEach((item, index) => {
     const title = item.title || 'Produk/Layanan ' + (index + 1);
-    textChunks(item.description || 'Informasi produk/layanan dapat dilengkapi lebih lanjut.', 800).forEach((part, partIndex) =>
+    const image = item.image && item.image.dataUrl ? '<img class="product-image" src="' + escapeHtml(item.image.dataUrl) + '" alt="' + escapeHtml(title) + '">' : '';
+    const parts = textChunks(item.description || '', 800);
+    (parts.length ? parts : ['']).forEach((part, partIndex) =>
       add(partIndex ? title + ' (lanjutan)' : (index === 0 ? 'Produk & Layanan' : title),
-        '<div class="data-card"><h3>' + escapeHtml(title) + '</h3>' + textMarkup(part) + '</div>', 'Our Offering'));
+        '<div class="offering-card">' + image + '<div class="data-card"><h3>' + escapeHtml(title) + '</h3>' + textMarkup(part) + '</div></div>',
+        'Our Offering', 'products'));
   });
-  if (profile.organization) textChunks(profile.organization).forEach((part, index) => add(index ? 'Organisasi (lanjutan)' : 'Organisasi', textMarkup(part)));
+
+  if (profile.organization) textChunks(profile.organization).forEach((part, index) =>
+    add(index ? 'Organisasi (lanjutan)' : 'Organisasi', textMarkup(part), 'Organization', 'organization'));
+
   (profile.portfolio || []).forEach((item, index) => {
     const title = item.title || 'Proyek ' + (index + 1);
     const image = item.image && item.image.dataUrl ? '<img class="portfolio-image" src="' + escapeHtml(item.image.dataUrl) + '" alt="' + escapeHtml(title) + '">' : '';
-    const year = item.year ? '<p class="page-eyebrow">' + escapeHtml(item.year) + '</p>' : '';
-    textChunks(item.description || 'Dokumentasi proyek.', 650).forEach((part, partIndex) =>
-      add(partIndex ? title + ' (lanjutan)' : (index === 0 ? 'Portofolio' : title), year + image +
-        '<div class="data-card"><h3>' + escapeHtml(title) + '</h3>' + textMarkup(part) + '</div>', 'Selected Work'));
+    const year = item.year ? '<p class="chapter-kicker">' + escapeHtml(item.year) + '</p>' : '';
+    const parts = textChunks(item.description || '', 650);
+    (parts.length ? parts : ['']).forEach((part, partIndex) =>
+      add(partIndex ? title + ' (lanjutan)' : (index === 0 ? 'Portofolio' : title),
+        year + image + '<div class="data-card"><h3>' + escapeHtml(title) + '</h3>' + textMarkup(part) + '</div>',
+        'Selected Work'));
   });
-  [['Legalitas', profile.legalitas], ['Operasional', profile.operationalData], ['Pencapaian', profile.achievementReport]].forEach(([label, value]) => {
-    if (value) textChunks(value).forEach((part, index) => add(index ? label + ' (lanjutan)' : label, textMarkup(part)));
+
+  [['Legalitas', profile.legalitas, 'organization'], ['Operasional', profile.operationalData, 'achievement'], ['Pencapaian', profile.achievementReport, 'achievement']].forEach(([label, value, imageKey]) => {
+    if (value) textChunks(value).forEach((part, index) =>
+      add(index ? label + ' (lanjutan)' : label, textMarkup(part), 'Company at a Glance', imageKey));
   });
+
   const contacts = [['Alamat', profile.address], ['Telepon', profile.phone], ['Email', profile.email], ['Website', profile.website]]
-    .filter(([, value]) => value).map(([label, value]) => '<div class="data-card"><h3>' + label + '</h3><p>' + escapeHtml(value) + '</p></div>').join('');
-  add('Kontak', '<p>' + escapeHtml(profile.tagline || 'Mari berdiskusi tentang peluang kolaborasi.') + '</p>' + (contacts || '<p>Tambahkan kontak perusahaan pada formulir.</p>'), 'Get in Touch');
+    .filter(([, value]) => value).map(([label, value]) => '<div class="contact-card"><span>' + label + '</span><strong>' + escapeHtml(value) + '</strong></div>').join('');
+  if (contacts) add('Kontak', contacts, 'Get in Touch');
 
   const tocSize = 10;
-  const tocCount = Math.max(1, Math.ceil(entries.length / tocSize));
+  const tocCount = entries.length ? Math.ceil(entries.length / tocSize) : 0;
   const pages = [{ kind: 'cover' }];
   for (let i = 0; i < tocCount; i++) {
     pages.push({ kind: 'toc', entries: entries.slice(i * tocSize, (i + 1) * tocSize), number: i + 2, part: i + 1, totalParts: tocCount });
   }
   content.forEach((page, index) => pages.push({ kind: 'content', ...page, number: 2 + tocCount + index }));
   entries.forEach(entry => { entry.page = 2 + tocCount + entry.index; });
-  // Replace TOC specs after final page numbers are known.
-  for (const page of pages) if (page.kind === 'toc') page.entries = entries.slice((page.part - 1) * tocSize, page.part * tocSize);
   const padding = (4 - ((pages.length + 1) % 4)) % 4;
   for (let i = 0; i < padding; i++) pages.push({ kind: 'transition', number: pages.length + 1 });
   pages.push({ kind: 'back' });
@@ -429,7 +464,7 @@ function renderDocument() {
     page.kind === 'toc' ? renderToc(page.entries, page.number, page.part, page.totalParts) :
     page.kind === 'back' ? renderBackCover() :
     page.kind === 'transition' ? renderTransition(page.number) :
-    innerPage(page.title, page.body, page.number, page.eyebrow)).join('');
+    innerPage(page.title, page.body, page.number, page.eyebrow, page.imageUrl)).join('');
   const ranges = { startup: [4, 8], mid: [8, 16], corporate: [20, 40] };
   const range = ranges[profile.businessScale] || ranges.startup;
   const targetText = range[0] + '–' + range[1];
@@ -448,41 +483,54 @@ async function exportPdf() {
   const pages = [...previewPages.querySelectorAll('.preview-page')];
   const JsPDF = window.jspdf && window.jspdf.jsPDF;
   if (!window.html2canvas || !JsPDF) {
-    setStatus('Library PDF belum termuat. Muat ulang halaman dan coba lagi.', true);
+    setStatus('Library ekspor belum termuat. Periksa koneksi, lalu muat ulang halaman.', true);
     return;
   }
   if (!pages.length) {
-    setStatus('Halaman preview belum siap. Buka ulang preview sebelum mengunduh.', true);
+    setStatus('Preview belum siap. Tutup preview, buka kembali, lalu coba lagi.', true);
     return;
   }
 
   button.disabled = true;
-  button.textContent = 'Membuat PDF…';
+  button.textContent = 'Menyiapkan PDF…';
   previewPages.classList.add('is-exporting');
   const filename = (profile.companyName || 'company-profile').toLowerCase().replace(/[^a-z0-9]+/g, '-') + '.pdf';
   try {
+    if (document.fonts && document.fonts.ready) await document.fonts.ready;
     const pdf = new JsPDF({ unit: 'mm', format: 'a4', orientation: 'portrait', compress: true });
     for (let index = 0; index < pages.length; index++) {
+      const pageImages = [...pages[index].querySelectorAll('img')];
+      await Promise.all(pageImages.map(img => img.decode ? img.decode().catch(() => {}) : Promise.resolve()));
       const canvas = await window.html2canvas(pages[index], {
-        scale: 2,
+        scale: 1.6,
         useCORS: true,
         allowTaint: false,
         backgroundColor: '#ffffff',
         width: pages[index].clientWidth,
         height: pages[index].clientHeight,
-        windowWidth: pages[index].scrollWidth,
-        windowHeight: pages[index].scrollHeight
+        windowWidth: Math.max(document.documentElement.clientWidth, pages[index].scrollWidth),
+        windowHeight: Math.max(document.documentElement.clientHeight, pages[index].scrollHeight),
+        logging: false
       });
       if (index > 0) pdf.addPage('a4', 'portrait');
-      pdf.addImage(canvas.toDataURL('image/jpeg', 0.96), 'JPEG', 0, 0, 210, 297, undefined, 'FAST');
+      pdf.addImage(canvas.toDataURL('image/jpeg', 0.9), 'JPEG', 0, 0, 210, 297, undefined, 'FAST');
       canvas.width = 1;
       canvas.height = 1;
-      button.textContent = 'Merender halaman ' + (index + 1) + '/' + pages.length + '…';
+      button.textContent = 'Membuat PDF ' + (index + 1) + ' dari ' + pages.length + '…';
     }
-    pdf.save(filename);
-    setStatus('PDF berhasil dibuat: ' + filename + ' (' + pages.length + ' halaman).');
+    const blob = pdf.output('blob');
+    const objectUrl = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = objectUrl;
+    link.download = filename;
+    link.style.display = 'none';
+    document.body.append(link);
+    link.click();
+    link.remove();
+    setTimeout(() => URL.revokeObjectURL(objectUrl), 60000);
+    setStatus('PDF selesai dibuat (' + pages.length + ' halaman). Jika unduhan tidak muncul, izinkan unduhan untuk situs ini lalu klik Unduh PDF lagi.');
   } catch (error) {
-    setStatus('PDF gagal dibuat. ' + (error.message || 'Periksa koneksi dan coba lagi.'), true);
+    setStatus('PDF gagal dibuat. ' + (error && error.message || 'Periksa koneksi, lalu coba lagi.'), true);
   } finally {
     previewPages.classList.remove('is-exporting');
     button.disabled = false;
