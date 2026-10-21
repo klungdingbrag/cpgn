@@ -13,7 +13,7 @@ Dokumen ini menjadi sumber utama urutan kerja dan status proyek. Targetnya adala
 - frontend/js/app.js mempertahankan nilai antar langkah dan menyimpan draft lokal otomatis.
 - Tombol simpan cloud membuat ID profil, mengirim data ke GAS, lalu memverifikasi dengan membaca profil kembali.
 - Tombol muat cloud membaca profil menggunakan ID.
-- Pengguna telah mengonfirmasi pembuatan ID, penyimpanan, dan pemuatan ulang profil berhasil dari UI pada 21 Oktober 2026.
+- Pengguna telah mengonfirmasi pembuatan ID, penyimpanan, dan pemuatan ulang profil berhasil dari UI pada 21 Oktober 2026; satu penyimpanan cloud tambahan juga menghasilkan ID profil dengan sukses.
 - URL GAS didefinisikan pada frontend/js/app.js.
 - gas/setup.gs membuat spreadsheet dan folder Drive, menyiapkan tab Profiles, lalu menyimpan ID ke Script Properties.
 - setupProject() berhasil dijalankan pada 20 Oktober 2026.
