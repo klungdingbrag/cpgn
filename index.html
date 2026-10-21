@@ -7,6 +7,7 @@
   <title>Company Profile Studio</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="frontend/css/styles.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 </head>
 <body class="min-h-screen text-slate-800">
   <header class="bg-slate-950 text-white">
@@ -15,16 +16,24 @@
         <img src="frontend/assets/logo.svg" alt="" class="h-10 w-10">
         <div><p class="text-xs uppercase tracking-[.25em] text-teal-300">Studio</p><h1 class="text-xl font-semibold">Company Profile Generator</h1></div>
       </div>
-      <span class="rounded-full border border-slate-700 px-3 py-1 text-xs text-slate-300">Draft tersinkron lokal</span>
+      <button id="previewButton" type="button" class="rounded-xl bg-teal-600 px-4 py-2 text-sm font-semibold text-white hover:bg-teal-500">Preview & PDF</button>
     </div>
   </header>
-  <main class="mx-auto grid max-w-6xl gap-6 px-5 py-8 lg:grid-cols-[260px_1fr]">
-    <aside class="rounded-2xl bg-white p-5 shadow-sm">
+  <main class="mx-auto grid max-w-6xl gap-6 px-5 py-8 lg:grid-cols-[270px_1fr]">
+    <aside class="h-fit rounded-2xl bg-white p-5 shadow-sm">
       <label for="businessScale" class="mb-2 block text-sm font-medium">Skala bisnis</label>
       <select id="businessScale" class="field">
         <option value="startup">Startup / UKM · 4–8 halaman</option>
         <option value="mid">Menengah · 8–16 halaman</option>
         <option value="corporate">Korporat · 20–40 halaman</option>
+      </select>
+      <p class="mt-4 text-xs font-semibold uppercase tracking-wider text-slate-500">Template</p>
+      <div class="mt-1 rounded-lg bg-slate-50 px-3 py-2 text-sm font-medium">Executive Modern</div>
+      <label for="themeSelect" class="mb-2 mt-4 block text-sm font-medium">Tema warna</label>
+      <select id="themeSelect" class="field">
+        <option value="teal">Teal Executive</option>
+        <option value="navy">Navy Trust</option>
+        <option value="earth">Earth & Craft</option>
       </select>
       <nav id="stepNav" class="mt-6 space-y-2" aria-label="Tahapan formulir"></nav>
       <div class="mt-6 border-t border-slate-100 pt-5">
@@ -32,7 +41,7 @@
         <input id="profileId" class="field text-xs" placeholder="Dibuat saat pertama kali menyimpan">
         <button id="loadButton" type="button" class="mt-2 w-full rounded-xl border border-slate-300 px-3 py-2 text-sm font-medium hover:bg-slate-50">Muat profil dari cloud</button>
       </div>
-      <p class="mt-5 text-xs leading-5 text-slate-500">Draft disimpan otomatis di browser ini. Simpan ke cloud untuk membuat profil yang dapat dimuat kembali dengan ID.</p>
+      <p class="mt-5 text-xs leading-5 text-slate-500">Draft disimpan otomatis di browser. Gambar profil maksimum 1 MB per file.</p>
     </aside>
     <section class="rounded-2xl bg-white p-6 shadow-sm sm:p-8">
       <div class="mb-6 flex items-start justify-between gap-4">
@@ -48,6 +57,16 @@
       <p id="status" class="mt-4 min-h-5 text-sm" role="status" aria-live="polite"></p>
     </section>
   </main>
+  <dialog id="previewDialog" class="preview-dialog">
+    <div class="preview-toolbar">
+      <div><h2 class="text-lg font-semibold">Preview Company Profile</h2><p id="pageCount" class="text-sm text-slate-500"></p></div>
+      <div class="flex gap-2">
+        <button id="exportPdfButton" type="button" class="rounded-xl bg-teal-700 px-4 py-2 text-sm font-semibold text-white hover:bg-teal-800">Unduh PDF</button>
+        <button id="closePreviewButton" type="button" class="rounded-xl border border-slate-300 px-4 py-2 text-sm font-medium">Tutup</button>
+      </div>
+    </div>
+    <div id="previewPages" class="preview-pages" aria-live="polite"></div>
+  </dialog>
   <script src="frontend/js/app.js"></script>
 </body>
 </html>
