@@ -372,12 +372,12 @@ function renderBackCover() {
   const contacts = [['Alamat', profile.address], ['Telepon', profile.phone], ['Email', profile.email], ['Website', profile.website]]
     .filter(([, value]) => value).map(([label, value]) => '<div><span class="text-white/60">' + label + '</span><br>' + escapeHtml(value) + '</div>').join('');
   return '<article class="preview-page back-page">' + image + '<div class="cover-overlay"></div><div class="cover-content"><div><p class="cover-label">Terhubung dengan kami</p><h2 class="mt-4 text-4xl font-semibold">' +
-    escapeHtml(companyName()) + '</h2></div><div class="back-contact">' + (contacts || '<p>Tambahkan informasi kontak pada formulir.</p>') +
+    escapeHtml(companyName()) + '</h2></div><div class="back-contact">' + contacts +
     '</div><p class="text-sm text-white/70">' + escapeHtml(profile.tagline || '') + '</p></div></article>';
 }
 function renderTransition(number) {
   const section = profile.assets.sections && profile.assets.sections.transition;
-  const imageUrl = (section && section.dataUrl) || (profile.assets.backCover && profile.assets.backCover.dataUrl) || '';
+  const imageUrl = (section && section.dataUrl) || (profile.assets.backCover && profile.assets.backCover.dataUrl) || (profile.assets.cover && profile.assets.cover.dataUrl) || '';
   const image = imageUrl ? '<img class="transition-photo" src="' + escapeHtml(imageUrl) + '" alt="">' : '';
   return '<article class="preview-page transition-page">' + image + '<div class="transition-overlay"></div><div class="transition-copy">' +
     (profile.tagline ? '<p class="page-eyebrow">Company Profile</p><h2>' + escapeHtml(profile.tagline) + '</h2>' : '') +
