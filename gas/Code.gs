@@ -3,7 +3,7 @@ const HEADERS = [
   'profileId', 'businessScale', 'package', 'companyName', 'tagline', 'industry',
   'address', 'phone', 'email', 'website', 'history', 'vision', 'mission',
   'products', 'organization', 'portfolio', 'legalitas', 'operationalData',
-  'achievementReport', 'assetsJson', 'createdAt', 'updatedAt'
+  'achievementReport', 'assetsJson', 'createdAt', 'updatedAt', 'theme'
 ];
 const MAX_IMAGE_BYTES = 1024 * 1024;
 const IMAGE_MIME_TYPES = ['image/jpeg', 'image/png', 'image/webp'];
@@ -47,12 +47,14 @@ function respond_(payload, callback) {
 
 function getProfile_(profileId) {
   if (!profileId) throw new Error('profileId wajib diisi.');
-  const values = getSheet_().getDataRange().getValues();
-  const idIndex = HEADERS.indexOf('profileId');
+  const sheet = getSheet_();
+  const headers = getHeaders_(sheet);
+  const values = sheet.getDataRange().getValues();
+  const idIndex = headers.indexOf('profileId');
   for (let r = 1; r < values.length; r++) {
     if (String(values[r][idIndex]) === String(profileId)) {
       const profile = {};
-      HEADERS.forEach((key, c) => profile[key] = values[r][c] == null ? '' : values[r][c]);
+      headers.forEach((key, c) => profile[key] = values[r][c] == null ? '' : values[r][c]);
       return { ok: true, profile };
     }
   }
@@ -68,21 +70,28 @@ function saveProfile_(profile) {
   });
   clean.profileId = String(clean.profileId || Utilities.getUuid());
   clean.businessScale = String(clean.businessScale || 'startup');
+  clean.theme = String(clean.theme || 'teal');
   clean.updatedAt = new Date().toISOString();
 
   const lock = LockService.getScriptLock();
   lock.waitLock(10000);
   try {
     const sheet = getSheet_();
+    const headers = getHeaders_(sheet);
     const rows = sheet.getDataRange().getValues();
-    const idCol = HEADERS.indexOf('profileId');
+    const idCol = headers.indexOf('profileId');
     const found = rows.findIndex((values, i) => i > 0 && String(values[idCol]) === clean.profileId);
+    let row;
     if (found < 0) {
       clean.createdAt = clean.createdAt || clean.updatedAt;
-      sheet.appendRow(HEADERS.map(key => clean[key]));
+      row = headers.map(key => clean[key] == null ? '' : clean[key]);
+      sheet.appendRow(row);
     } else {
-      clean.createdAt = clean.createdAt || rows[found][HEADERS.indexOf('createdAt')];
-      sheet.getRange(found + 1, 1, 1, HEADERS.length).setValues([HEADERS.map(key => clean[key])]);
+      clean.createdAt = clean.createdAt || rows[found][headers.indexOf('createdAt')];
+      row = headers.map((key, col) => Object.prototype.hasOwnProperty.call(clean, key)
+        ? clean[key]
+        : (rows[found][col] == null ? '' : rows[found][col]));
+      sheet.getRange(found + 1, 1, 1, headers.length).setValues([row]);
     }
   } finally {
     lock.releaseLock();
@@ -107,14 +116,14 @@ function uploadAsset_(body) {
   while (existing.hasNext()) {
     const file = existing.next();
     const metadata = parseAssetDescription_(file);
-    if (metadata.profileId === profileId) {
+    if (metadata.profileId === profileId && metadata.assetId === assetId) {
       return { ok: true, assetId, profileId, name: metadata.name || body.name || 'image', mimeType: metadata.mimeType || mimeType };
     }
   }
 
   const name = String(body.name || 'image').replace(/[\\/:*?"<>|\r\n]/g, '_').slice(0, 100);
   const blob = Utilities.newBlob(bytes, mimeType, assetName);
-  const file = folder.createFile(blob);
+  const file = folder.createFile(blob); // File tetap private; API mengambilnya berdasarkan ID profil dan aset.
   file.setDescription(JSON.stringify({ assetId, profileId, name, mimeType }));
   return { ok: true, assetId, profileId, name, mimeType };
 }
@@ -129,11 +138,10 @@ function getAsset_(profileId, assetId) {
     const blob = file.getBlob();
     const bytes = blob.getBytes();
     if (bytes.length > MAX_IMAGE_BYTES) throw new Error('Aset melebihi batas ukuran.');
+    const mimeType = metadata.mimeType || blob.getContentType();
     return {
-      ok: true, assetId, profileId,
-      name: metadata.name || file.getName(),
-      mimeType: metadata.mimeType || blob.getContentType(),
-      dataUrl: 'data:' + (metadata.mimeType || blob.getContentType()) + ';base64,' + Utilities.base64Encode(bytes)
+      ok: true, assetId, profileId, name: metadata.name || file.getName(), mimeType,
+      dataUrl: 'data:' + mimeType + ';base64,' + Utilities.base64Encode(bytes)
     };
   }
   return { ok: false, error: 'Aset tidak ditemukan.' };
@@ -148,6 +156,23 @@ function isUuid_(value) {
   return /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(value);
 }
 
+function getHeaders_(sheet) {
+  let lastColumn = sheet.getLastColumn();
+  if (!lastColumn) {
+    sheet.getRange(1, 1, 1, HEADERS.length).setValues([HEADERS]);
+    sheet.setFrozenRows(1);
+    return HEADERS.slice();
+  }
+  const headers = sheet.getRange(1, 1, 1, lastColumn).getValues()[0].map(value => String(value || '').trim());
+  HEADERS.forEach(key => {
+    if (headers.indexOf(key) < 0) {
+      headers.push(key);
+      sheet.getRange(1, headers.length).setValue(key);
+    }
+  });
+  return headers;
+}
+
 function getAssetFolder_() {
   const id = PropertiesService.getScriptProperties().getProperty('DRIVE_FOLDER_ID');
   if (!id) throw new Error('DRIVE_FOLDER_ID belum diset. Jalankan setupProject().');
@@ -159,5 +184,6 @@ function getSheet_() {
   if (!id) throw new Error('SPREADSHEET_ID belum diset. Jalankan setupProject().');
   const sheet = SpreadsheetApp.openById(id).getSheetByName(SHEET_NAME);
   if (!sheet) throw new Error('Tab Profiles tidak ditemukan. Jalankan setupProject().');
+  getHeaders_(sheet); // Migrasi kolom tambahan aman untuk spreadsheet yang sudah berisi data.
   return sheet;
 }
