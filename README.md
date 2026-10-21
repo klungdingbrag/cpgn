@@ -1,56 +1,64 @@
 # Company Profile Generator
 
-Mesin produksi company profile untuk layanan desain dan penerbitan bisnis. Frontend statis berjalan di GitHub Pages; Google Apps Script menangani API, Google Sheets menyimpan data, dan Google Drive menyimpan aset.
+Mesin produksi company profile. Frontend statis berjalan di GitHub Pages; Google Apps Script menangani API, Google Sheets menyimpan profil, dan Google Drive menyimpan gambar.
 
 ## Status proyek
 
-**Fondasi GAS dan alur simpan/muat profil sudah berhasil digunakan.** Pengguna mengonfirmasi simpan dan muat ulang profil berhasil dari UI pada 21 Oktober 2026. Langkah aktif berikutnya adalah membangun model konten terstruktur dan satu template profil dengan preview A4. Upload gambar, daftar isi final, dan ekspor PDF menyusul. Integrasi Gemini belum dimulai. Detail status dan tahapan kerja ada di [docs/roadmap.md](docs/roadmap.md).
+Alur simpan/muat profil sudah dikonfirmasi berhasil oleh pengguna. Di repo kini tersedia editor produk dan portofolio terstruktur, satu template Executive Modern, tiga tema warna, preview A4, upload gambar privat ke Drive, daftar isi otomatis, dan ekspor PDF A4.
 
-## Arsitektur
-
-Frontend GitHub Pages → wizard input → template → preview A4 → ekspor PDF.
-Google Apps Script menangani API, Sheets menyimpan satu baris per profileId, Drive menyimpan aset, dan Gemini untuk copywriting pada fase 3.
+**Perlu langkah manual:** backend GAS yang sedang ter-deploy harus diperbarui dari gas/Code.gs dan dideploy sebagai versi baru. Setelah itu, fitur upload gambar dan tema perlu diuji langsung melalui GitHub Pages. Gunakan data percobaan saja sampai API memiliki autentikasi dan perlindungan penyalahgunaan. Lihat [roadmap](docs/roadmap.md) untuk status lengkap.
 
 ## Struktur repository
 
-- index.html
-- frontend/css/styles.css
-- frontend/js/app.js
-- frontend/assets/logo.svg dan placeholders/
-- gas/setup.gs
-- gas/Code.gs
-- docs/roadmap.md
+- index.html — UI wizard, template/theme controls, preview dialog
+- frontend/css/styles.css — form dan halaman A4
+- frontend/js/app.js — state, profil cloud, item terstruktur, upload, pagination, dan ekspor PDF
+- frontend/assets/ — aset frontend
+- gas/setup.gs — membuat spreadsheet/folder Drive
+- gas/Code.gs — API profil dan gambar
+- docs/roadmap.md — posisi dan tahapan proyek
 
-Saat ini wizard starter berada di index.html. CSS dan JavaScript terpisah disiapkan sebagai struktur pengembangan lanjutan.
+## Frontend
 
-## Setup Google Apps Script
+GitHub Pages disetel dari Settings → Pages, branch main, folder root. Frontend menggunakan Tailwind CDN dan html2pdf.js CDN untuk prototipe.
+
+Fitur saat ini:
+
+- Form bertahap berdasarkan skala bisnis.
+- Produk dan portofolio dapat ditambahkan sebagai item terpisah.
+- Tema Teal Executive, Navy Trust, dan Earth & Craft.
+- Template pertama: Executive Modern, dengan cover, daftar isi, isi profil, halaman transisi, dan back cover.
+- Upload JPG/PNG/WebP maksimum 1 MB per gambar. File disimpan privat di Drive.
+- Preview halaman A4 dan ekspor PDF; engine menambahkan halaman transisi sebelum back cover hingga jumlah halaman kelipatan empat.
+- Jumlah halaman paket ditampilkan sebagai target. Komposisi aktual bergantung pada kelengkapan konten.
+
+## Setup dan pembaruan Google Apps Script
+
+### Setup pertama kali
 
 1. Buat project di https://script.google.com.
-2. Tambahkan file setup.gs dan Code.gs dengan menyalin isi dari folder gas/ di repository.
-3. Jalankan setupProject() dari editor Apps Script dan setujui izin Google.
-4. Fungsi membuat spreadsheet dan folder Drive otomatis, menyiapkan tab Profiles, dan menyimpan ID di Script Properties.
-5. Buka Execution log untuk tautan spreadsheet dan folder. Pemanggilan ulang memakai resource sama dan tidak membuat duplikat.
+2. Salin gas/setup.gs dan gas/Code.gs dari repository ke project Apps Script.
+3. Jalankan setupProject() dan setujui izin Google.
+4. Fungsi membuat spreadsheet serta folder Drive, menyiapkan tab Profiles, dan mencatat ID di Script Properties.
+5. Lihat Execution log untuk tautan resource.
 
-## Deploy frontend dan API
+### Memperbarui project GAS yang sudah ada
 
-1. Aktifkan GitHub Pages dari Settings → Pages dan pilih branch main dengan folder root.
-2. Deploy GAS sebagai Web app dan salin URL /exec.
-3. URL Web App saat ini dikonfigurasi di frontend/js/app.js. UI menyediakan Simpan ke cloud (menghasilkan ID profil) dan Muat profil dari cloud (memerlukan ID tersebut). Uji alur ini dari URL GitHub Pages dengan data percobaan.
+1. Buka project Apps Script yang dipakai deployment.
+2. Ganti isi Code.gs dengan versi terbaru dari repo: [gas/Code.gs](../gas/Code.gs).
+3. Simpan perubahan. Kode menambahkan kolom theme ke baris header saat API dipanggil; tidak perlu menghapus data atau membuat spreadsheet baru.
+4. Pilih Deploy → Manage deployments, edit deployment Web App yang sudah ada, pilih New version, lalu Deploy.
+5. Beri izin yang diminta jika Apps Script memintanya. URL /exec pada deployment yang sama tetap dipakai frontend.
+6. Uji upload gambar, simpan/muat profil, dan tema menggunakan data percobaan.
 
-Pembacaan memakai JSONP dan penyimpanan memakai POST sederhana, lalu UI mencoba memverifikasi hasil simpan dengan membaca profil kembali. Endpoint GAS saat ini belum memiliki autentikasi pengguna atau pembatasan penyalahgunaan. Gunakan data percobaan saja sampai perlindungan akses dan kebijakan data klien ditetapkan. Jangan menaruh rahasia di frontend publik.
+Tidak perlu menjalankan setupProject() ulang untuk pembaruan ini. setup.gs hanya perlu diganti bila menyiapkan project baru.
 
-## Langkah berikutnya\n\nMulai dengan model data yang dapat menyimpan beberapa produk/layanan dan item portofolio, lalu bangun template profesional pertama dengan cover, pembuka, isi, daftar isi, penutup, dan back cover. Preview awal dapat memakai placeholder gambar sebelum alur upload Drive ditambahkan. Lihat [roadmap](docs/roadmap.md) untuk urutan fase dan status detail.\n\n## Arah produk
+## API dan keamanan
 
-Pengguna mengisi data satu kali, lalu memilih template dan tema warna. Template menyusun cover depan, pembuka, daftar isi otomatis, isi profil, penutup, dan back cover. Galeri menjadi bagian portofolio; back cover dapat memakai satu gambar atau kolase dengan informasi kontak yang tetap terbaca.
+Frontend membaca profil melalui JSONP dan menyimpan/mengunggah melalui POST sederhana. Endpoint upload memvalidasi MIME JPG/PNG/WebP serta batas 1 MB di backend; Drive menyimpan file secara privat. UI mengambil gambar melalui endpoint dengan ID profil dan aset.
 
-Preview menampilkan halaman A4. Nomor daftar isi dihitung dari pagination final. Cover dan back cover ikut dihitung; hasil saddle stitch ditambah halaman transisi/kosong agar jumlah halaman kelipatan empat. Skala paket menentukan rentang halaman dan bagian yang tersedia.
+API saat ini belum memiliki autentikasi pengguna atau pembatasan penyalahgunaan. Endpoint publik dan ID profil/aset bukan pengganti autentikasi. Jangan simpan informasi klien yang sensitif atau dokumen legalitas sampai kontrol akses, validasi, kuota, dan kebijakan data ditetapkan. Jangan masukkan token rahasia ke frontend publik.
 
-## Teknologi target
+## Arah produk
 
-- HTML5, Vanilla JavaScript, Tailwind CSS
-- Google Apps Script, Google Sheets, Google Drive
-- html2pdf.js untuk ekspor PDF client-side
-- pdf-lib.js untuk menggabungkan lampiran PDF
-- Gemini API dari GAS dengan key di Script Properties
-
-Biaya layanan pihak ketiga, kuota Google, dan batas operasional perlu ditinjau sebelum menawarkan SLA atau menyimpan data klien dalam skala besar.
+Materi diisi sekali lalu disusun template menjadi cover depan, pembuka, daftar isi otomatis, isi profil, penutup, dan back cover. Portofolio memuat dokumentasi proyek; back cover dapat memakai gambar pilihan dengan kontak yang tetap terbaca. Berikutnya: uji layout PDF, rapikan pagination, gabungkan lampiran legalitas memakai pdf-lib.js, lalu kembangkan template alternatif dan Gemini Copywriter.
