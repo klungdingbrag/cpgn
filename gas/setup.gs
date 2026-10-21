@@ -31,7 +31,7 @@ function setupProject() {
     'profileId', 'businessScale', 'package', 'companyName', 'tagline', 'industry',
     'address', 'phone', 'email', 'website', 'history', 'vision', 'mission',
     'products', 'organization', 'portfolio', 'legalitas', 'operationalData',
-    'achievementReport', 'assetsJson', 'createdAt', 'updatedAt'
+    'achievementReport', 'assetsJson', 'createdAt', 'updatedAt', 'theme'
   ];
 
   let sheet = spreadsheet.getSheetByName('Profiles');
