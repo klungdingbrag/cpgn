@@ -4,7 +4,7 @@ Mesin produksi company profile. Frontend statis berjalan di GitHub Pages; Google
 
 ## Status proyek
 
-Alur simpan/muat profil sudah dikonfirmasi berhasil oleh pengguna. Di repo kini tersedia editor produk dan portofolio terstruktur, satu template Executive Modern, tiga tema warna, preview A4, upload gambar privat ke Drive, daftar isi otomatis, dan ekspor PDF A4.
+Alur simpan/muat profil sudah dikonfirmasi berhasil oleh pengguna. Di repo tersedia editor produk dan portofolio terstruktur, satu template Executive Modern, tiga tema warna, preview A4, foto cover/back cover/foto per bab, daftar isi otomatis, dan ekspor PDF A4. Ekspor dan tata letak visual baru saja diperbaiki; hasilnya perlu dicoba lagi melalui GitHub Pages.
 
 **Perlu langkah manual:** backend GAS yang sedang ter-deploy harus diperbarui dari gas/Code.gs dan dideploy sebagai versi baru. Setelah itu, fitur upload gambar dan tema perlu diuji langsung melalui GitHub Pages. Gunakan data percobaan saja sampai API memiliki autentikasi dan perlindungan penyalahgunaan. Lihat [roadmap](docs/roadmap.md) untuk status lengkap.
 
@@ -20,7 +20,7 @@ Alur simpan/muat profil sudah dikonfirmasi berhasil oleh pengguna. Di repo kini 
 
 ## Frontend
 
-GitHub Pages disetel dari Settings → Pages, branch main, folder root. Frontend menggunakan Tailwind CDN dan html2pdf.js CDN untuk prototipe.
+GitHub Pages disetel dari Settings → Pages, branch main, folder root. Frontend menggunakan Tailwind CDN, html2canvas, dan jsPDF untuk merender setiap halaman A4 secara terpisah.
 
 Fitur saat ini:
 
@@ -28,8 +28,8 @@ Fitur saat ini:
 - Produk dan portofolio dapat ditambahkan sebagai item terpisah.
 - Tema Teal Executive, Navy Trust, dan Earth & Craft.
 - Template pertama: Executive Modern, dengan cover, daftar isi, isi profil, halaman transisi, dan back cover.
-- Upload JPG/PNG/WebP maksimum 1 MB per gambar. File disimpan privat di Drive.
-- Preview halaman A4 dan ekspor PDF; engine menambahkan halaman transisi sebelum back cover hingga jumlah halaman kelipatan empat.
+- Upload JPG/PNG/WebP maksimum 1 MB per gambar. File disimpan privat di Drive; foto dapat dipilih untuk cover, back cover, bab, produk, dan portofolio.
+- Preview halaman A4 dan ekspor PDF dengan render per halaman, unduhan Blob, serta halaman transisi sebelum back cover hingga jumlah halaman kelipatan empat. Bagian tanpa data dihilangkan dan template tidak menambahkan filler teks.
 - Jumlah halaman paket ditampilkan sebagai target. Komposisi aktual bergantung pada kelengkapan konten.
 
 ## Setup dan pembaruan Google Apps Script
