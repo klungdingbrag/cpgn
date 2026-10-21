@@ -45,7 +45,7 @@ Fitur saat ini:
 ### Memperbarui project GAS yang sudah ada
 
 1. Buka project Apps Script yang dipakai deployment.
-2. Ganti isi Code.gs dengan versi terbaru dari repo: [gas/Code.gs](../gas/Code.gs).
+2. Ganti isi Code.gs dengan versi terbaru dari repo: [gas/Code.gs](gas/Code.gs).
 3. Simpan perubahan. Kode menambahkan kolom theme ke baris header saat API dipanggil; tidak perlu menghapus data atau membuat spreadsheet baru.
 4. Pilih Deploy → Manage deployments, edit deployment Web App yang sudah ada, pilih New version, lalu Deploy.
 5. Beri izin yang diminta jika Apps Script memintanya. URL /exec pada deployment yang sama tetap dipakai frontend.
