@@ -14,18 +14,18 @@ Dokumen ini menjadi sumber utama urutan kerja dan status proyek. Targetnya adala
 - Satu template awal bernama Executive Modern dengan cover, daftar isi bernomor, halaman isi, halaman transisi, dan back cover.
 - Editor produk dan portofolio terstruktur sebagai item terpisah; portofolio dapat memiliki foto.
 - Pilihan tiga tema warna dan preview halaman A4.
-- Kode client-side untuk validasi gambar maksimal 1 MB, upload gambar privat ke Drive, dan pemuatan gambar melalui endpoint GAS.
-- Ekspor PDF A4 memakai html2pdf.js; engine menambahkan halaman transisi sebelum back cover hingga total halaman kelipatan empat.
+- Kode client-side untuk validasi gambar maksimal 1 MB, upload gambar privat ke Drive, dan pemuatan gambar melalui endpoint GAS. Foto opsional dapat dipilih untuk cover, back cover, pembuka bab, produk, dan item portofolio.
+- Ekspor PDF A4 kini merender halaman satu per satu dengan html2canvas + jsPDF, lalu memulai unduhan melalui Blob URL. Halaman transisi ditambahkan sebelum back cover hingga total halaman kelipatan empat. Filler teks otomatis sudah dihapus.
 
 ### Menunggu penerapan dan verifikasi
 
 - gas/Code.gs terbaru harus disalin ke project Apps Script dan Web App dideploy dengan versi baru. Backend deployment lama belum memiliki endpoint upload/getAsset dan migrasi kolom tema.
-- Uji dari GitHub Pages: upload gambar, simpan/muat item terstruktur dan tema, lalu unduh PDF.
-- Periksa jumlah/ukuran halaman pada browser dan hasil PDF; rentang paket saat ini ditampilkan sebagai target, belum dipaksakan oleh engine.
+- Uji dari GitHub Pages: upload gambar, simpan/muat item terstruktur dan tema, lalu pastikan unduhan PDF berhasil dan setiap halaman berisi desain yang benar.
+- Periksa jumlah/ukuran halaman pada browser dan hasil PDF; rentang paket saat ini ditampilkan sebagai target, belum dipaksakan oleh engine. PDF hasil lama yang dilaporkan pengguna memiliki 95 halaman kosong dan menjadi acuan perbaikan.
 - Akses API belum memiliki autentikasi atau pembatasan penyalahgunaan. Gunakan data percobaan saja.
 - Belum ada penggabungan dokumen legalitas dengan pdf-lib.js maupun integrasi Gemini.
 
-**Langkah aktif berikutnya:** perbarui Code.gs di Apps Script, deploy versi baru pada deployment yang sama, lalu uji alur gambar dan PDF. Setelah itu perbaiki temuan render/cetak dan rancang perlindungan API sebelum data klien sungguhan.
+**Langkah aktif berikutnya:** perbarui Code.gs di Apps Script bila belum, deploy versi baru pada deployment yang sama, lalu refresh GitHub Pages dan verifikasi ekspor PDF terbaru beserta foto pilihan. Setelah itu perbaiki temuan render/cetak dan rancang perlindungan API sebelum data klien sungguhan.
 
 ## Spesifikasi dokumen
 
