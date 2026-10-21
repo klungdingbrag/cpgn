@@ -4,7 +4,7 @@ Mesin produksi company profile untuk layanan desain dan penerbitan bisnis. Front
 
 ## Status proyek
 
-**Alur dasar wizard dan kode simpan/muat cloud sudah ada; verifikasi langsung melalui GitHub Pages masih menunggu.** setupProject() berhasil membuat spreadsheet dan folder Drive serta menyimpan konfigurasi di Script Properties. Health check GAS berhasil. Form menyimpan draft lokal otomatis, dan sudah memiliki tombol simpan/muat melalui GAS. Preview halaman, template, tema, daftar isi otomatis, ekspor PDF, upload, dan Gemini belum diimplementasikan. Detail status dan tahapan kerja ada di [docs/roadmap.md](docs/roadmap.md).
+**Fondasi GAS dan alur simpan/muat profil sudah berhasil digunakan.** Pengguna mengonfirmasi simpan dan muat ulang profil berhasil dari UI pada 21 Oktober 2026. Langkah aktif berikutnya adalah membangun model konten terstruktur dan satu template profil dengan preview A4. Upload gambar, daftar isi final, dan ekspor PDF menyusul. Integrasi Gemini belum dimulai. Detail status dan tahapan kerja ada di [docs/roadmap.md](docs/roadmap.md).
 
 ## Arsitektur
 
@@ -39,7 +39,7 @@ Saat ini wizard starter berada di index.html. CSS dan JavaScript terpisah disiap
 
 Pembacaan memakai JSONP dan penyimpanan memakai POST sederhana, lalu UI mencoba memverifikasi hasil simpan dengan membaca profil kembali. Endpoint GAS saat ini belum memiliki autentikasi pengguna atau pembatasan penyalahgunaan. Gunakan data percobaan saja sampai perlindungan akses dan kebijakan data klien ditetapkan. Jangan menaruh rahasia di frontend publik.
 
-## Arah produk
+## Langkah berikutnya\n\nMulai dengan model data yang dapat menyimpan beberapa produk/layanan dan item portofolio, lalu bangun template profesional pertama dengan cover, pembuka, isi, daftar isi, penutup, dan back cover. Preview awal dapat memakai placeholder gambar sebelum alur upload Drive ditambahkan. Lihat [roadmap](docs/roadmap.md) untuk urutan fase dan status detail.\n\n## Arah produk
 
 Pengguna mengisi data satu kali, lalu memilih template dan tema warna. Template menyusun cover depan, pembuka, daftar isi otomatis, isi profil, penutup, dan back cover. Galeri menjadi bagian portofolio; back cover dapat memakai satu gambar atau kolase dengan informasi kontak yang tetap terbaca.
 
