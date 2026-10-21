@@ -445,19 +445,49 @@ async function openPreview() {
 }
 async function exportPdf() {
   const button = document.querySelector('#exportPdfButton');
-  if (!window.html2pdf) { setStatus('Library PDF belum termuat. Periksa koneksi, lalu coba lagi.', true); return; }
-  button.disabled = true; button.textContent = 'Membuat PDF…'; previewPages.classList.add('is-exporting');
+  const pages = [...previewPages.querySelectorAll('.preview-page')];
+  const JsPDF = window.jspdf && window.jspdf.jsPDF;
+  if (!window.html2canvas || !JsPDF) {
+    setStatus('Library PDF belum termuat. Muat ulang halaman dan coba lagi.', true);
+    return;
+  }
+  if (!pages.length) {
+    setStatus('Halaman preview belum siap. Buka ulang preview sebelum mengunduh.', true);
+    return;
+  }
+
+  button.disabled = true;
+  button.textContent = 'Membuat PDF…';
+  previewPages.classList.add('is-exporting');
   const filename = (profile.companyName || 'company-profile').toLowerCase().replace(/[^a-z0-9]+/g, '-') + '.pdf';
   try {
-    await html2pdf().set({
-      margin: 0, filename, image: { type: 'jpeg', quality: 0.96 },
-      html2canvas: { scale: 2, useCORS: false, backgroundColor: '#ffffff' },
-      jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
-      pagebreak: { mode: ['css', 'legacy'] }
-    }).from(previewPages).save();
-    setStatus('PDF berhasil dibuat: ' + filename);
-  } catch (error) { setStatus('PDF gagal dibuat. ' + (error.message || ''), true); }
-  finally { previewPages.classList.remove('is-exporting'); button.disabled = false; button.textContent = 'Unduh PDF'; }
+    const pdf = new JsPDF({ unit: 'mm', format: 'a4', orientation: 'portrait', compress: true });
+    for (let index = 0; index < pages.length; index++) {
+      const canvas = await window.html2canvas(pages[index], {
+        scale: 2,
+        useCORS: true,
+        allowTaint: false,
+        backgroundColor: '#ffffff',
+        width: pages[index].clientWidth,
+        height: pages[index].clientHeight,
+        windowWidth: pages[index].scrollWidth,
+        windowHeight: pages[index].scrollHeight
+      });
+      if (index > 0) pdf.addPage('a4', 'portrait');
+      pdf.addImage(canvas.toDataURL('image/jpeg', 0.96), 'JPEG', 0, 0, 210, 297, undefined, 'FAST');
+      canvas.width = 1;
+      canvas.height = 1;
+      button.textContent = 'Merender halaman ' + (index + 1) + '/' + pages.length + '…';
+    }
+    pdf.save(filename);
+    setStatus('PDF berhasil dibuat: ' + filename + ' (' + pages.length + ' halaman).');
+  } catch (error) {
+    setStatus('PDF gagal dibuat. ' + (error.message || 'Periksa koneksi dan coba lagi.'), true);
+  } finally {
+    previewPages.classList.remove('is-exporting');
+    button.disabled = false;
+    button.textContent = 'Unduh PDF';
+  }
 }
 async function loadFromCloud(id) {
   if (!id) throw new Error('Masukkan ID profil yang ingin dimuat.');
