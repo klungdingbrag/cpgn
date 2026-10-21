@@ -50,5 +50,6 @@ textarea.field { resize: vertical; }
   .preview-page { margin: 0; box-shadow: none; break-after: page; page-break-after: always; }
   .preview-page:last-child { break-after: auto; page-break-after: auto; }
 }
-.preview-pages.is-exporting { gap: 0; padding: 0; }
+.portfolio-image { display: block; width: 100%; max-height: 115mm; margin: 0 0 6mm; border-radius: 3mm; object-fit: cover; }
+.preview-pages.is-exporting { display: block; width: 210mm; gap: 0; padding: 0; }
 .preview-pages.is-exporting .preview-page { margin: 0; box-shadow: none; }
