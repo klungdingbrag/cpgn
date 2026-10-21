@@ -10,7 +10,7 @@ textarea.field { resize: vertical; }
 .preview-dialog::backdrop { background: #0f172a99; }
 .preview-toolbar { position: sticky; z-index: 3; top: 0; display: flex; align-items: center; justify-content: space-between; gap: 1rem; padding: 1rem 1.25rem; background: #fff; border-bottom: 1px solid #e2e8f0; }
 .preview-pages { --theme-ink: #102a2a; --theme-accent: #0f766e; --theme-soft: #e6f4f1; --theme-text: #172a2a; display: flex; flex-direction: column; align-items: center; gap: 16px; padding: 18px; }
-.preview-page { position: relative; box-sizing: border-box; width: 210mm; height: 297mm; flex: 0 0 297mm; overflow: hidden; padding: 17mm; background: #fff; color: var(--theme-text); box-shadow: 0 4px 24px #0f172a20; }
+.preview-page { position: relative; box-sizing: border-box; width: 210mm; height: 297mm; flex: 0 0 297mm; overflow: hidden; padding: 17mm; background: #fff; color: var(--theme-text); box-shadow: 0 4px 24px #0f172a20; break-inside: avoid; page-break-inside: avoid; break-after: page; page-break-after: always; }
 .preview-page h2 { color: var(--theme-ink); }
 .page-topline { height: 3px; width: 30mm; margin-bottom: 10mm; background: var(--theme-accent); }
 .page-footer { position: absolute; right: 17mm; bottom: 11mm; left: 17mm; display: flex; justify-content: space-between; border-top: 1px solid #d9e2e7; padding-top: 4mm; color: #64748b; font-size: 9pt; }
@@ -52,4 +52,5 @@ textarea.field { resize: vertical; }
 }
 .portfolio-image { display: block; width: 100%; max-height: 115mm; margin: 0 0 6mm; border-radius: 3mm; object-fit: cover; }
 .preview-pages.is-exporting { display: block; width: 210mm; gap: 0; padding: 0; }
-.preview-pages.is-exporting .preview-page { margin: 0; box-shadow: none; }
+.preview-pages.is-exporting .preview-page { margin: 0; box-shadow: none; transform: none; }
+.preview-pages.is-exporting .preview-page:last-child { break-after: auto; page-break-after: auto; }
