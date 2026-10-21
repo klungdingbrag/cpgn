@@ -430,8 +430,12 @@ function renderDocument() {
     page.kind === 'back' ? renderBackCover() :
     page.kind === 'transition' ? renderTransition(page.number) :
     innerPage(page.title, page.body, page.number, page.eyebrow)).join('');
-  const range = { startup: '4–8', mid: '8–16', corporate: '20–40' }[profile.businessScale];
-  document.querySelector('#pageCount').textContent = pages.length + ' halaman · target paket ' + range + ' · kelipatan 4';
+  const ranges = { startup: [4, 8], mid: [8, 16], corporate: [20, 40] };
+  const range = ranges[profile.businessScale] || ranges.startup;
+  const targetText = range[0] + '–' + range[1];
+  const pageNote = pages.length < range[0] ? ' · tambahkan materi agar mencapai target paket' :
+    (pages.length > range[1] ? ' · konten melebihi target paket' : ' · sesuai target paket');
+  document.querySelector('#pageCount').textContent = pages.length + ' halaman · target ' + targetText + pageNote + ' · kelipatan 4';
 }
 async function openPreview() {
   captureFields(); profile.theme = themeSelect.value; persistLocal();
